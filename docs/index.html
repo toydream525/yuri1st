@@ -54,6 +54,16 @@
     .platform .ready { color: var(--primary); font-weight: 700; }
     .platform a { color: var(--primary); font-weight: 600; text-decoration: none; }
     .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+    .about {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 26px 30px; text-align: left; max-width: 760px; margin: 0 auto;
+    }
+    .about p { margin-bottom: 12px; }
+    .about h3 { color: var(--primary); font-size: 18px; margin: 22px 0 10px; }
+    .about h4 { color: var(--primary); font-size: 15px; margin: 16px 0 6px; }
+    .about ul { padding-left: 22px; color: var(--muted); font-size: 14px; }
+    .about li { margin-bottom: 4px; }
+    .about a { color: var(--primary); text-decoration: none; font-weight: 600; }
     .feature {
       background: var(--card); border: 1px solid var(--border); border-radius: 16px;
       padding: 22px;
@@ -79,6 +89,7 @@
     <header>
       <div class="logo">yuri1st<small>百合作品避雷工具</small></div>
       <nav>
+        <a href="#about">说明</a>
         <a href="#features">功能</a>
         <a href="#platforms">平台</a>
         <a href="#shots">截图</a>
@@ -94,6 +105,40 @@
         <a class="btn ghost" href="https://github.com/toydream525/yuri1st">查看源码</a>
       </div>
     </div>
+
+    <section id="about">
+      <h2>项目说明</h2>
+      <div class="about">
+        <p>一个专注百合作品的 Android 应用：整理 Bangumi 上的百合 / 轻百合动画、漫画、轻小说和游戏，用 AI 判断作品雷点，并一键同步你的 Bangumi 收藏状态。</p>
+        <p>📦 下载 Android APK：<a href="https://github.com/toydream525/yuri1st/releases/latest">yuri1st v0.3.0</a>（当前为调试签名测试版）</p>
+        <h3>功能介绍</h3>
+        <h4>AI 雷点分析</h4>
+        <ul>
+          <li>标准 OpenAI 兼容接口：支持 OpenAI、DeepSeek、Moonshot、自建端点等</li>
+          <li>读取作品资料（标题、简介、标签、基本资料、评分），可选联网检索</li>
+          <li>输出真百 / 轻百 / 非百、置信度、判断理由与雷点列表，标注“仅供参考”</li>
+          <li>提示词可自由编辑；结果按条目缓存，列表和封面直接显示 AI 徽章</li>
+          <li>支持一键分析本页全部作品，实时进度、可随时取消</li>
+        </ul>
+        <h4>Bangumi 点格子</h4>
+        <ul>
+          <li>把想看 / 看过 / 在看 / 搁置 / 抛弃写入你的 Bangumi 账号收藏</li>
+          <li>详情页单条点格子，列表与封面显示状态徽章</li>
+          <li>批量点格子：可选当前页或全部分类，自动限速避免触发频率限制，可随时取消</li>
+        </ul>
+        <h4>百合目录</h4>
+        <ul>
+          <li>动画 / 漫画 / 轻小说 / 游戏分类浏览</li>
+          <li>列表 / 封面双视图，支持搜索与多条件筛选（年份、评分人数、TV / OVA / 剧场版 / 其他等）</li>
+          <li>按 AI 判断的真百 / 轻百 / 非百筛选，也支持自定义“赢面 / 输面”标记与筛选</li>
+        </ul>
+        <h4>本地与隐私</h4>
+        <ul>
+          <li>本地收藏、屏蔽、随机推荐；NSFW 默认关闭</li>
+          <li>Bangumi Token 与 AI API Key 使用 Android Keystore 加密保存，不读取评论区</li>
+        </ul>
+      </div>
+    </section>
 
     <section id="platforms">
       <h2>支持平台</h2>
