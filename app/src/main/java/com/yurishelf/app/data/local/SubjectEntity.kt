@@ -1,0 +1,54 @@
+package com.yurishelf.app.data.local
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+
+@Entity(
+    tableName = "subjects",
+    primaryKeys = ["id", "catalogType"],
+    indices = [Index("catalogType"), Index("ratingScore"), Index("ratingTotal")],
+)
+data class SubjectEntity(
+    val id: Int,
+    val type: Int,
+    val catalogType: String,
+    val name: String,
+    val nameCn: String,
+    val summary: String,
+    val date: String,
+    val platform: String,
+    val imageUrl: String,
+    val ratingScore: Double,
+    val ratingTotal: Int,
+    val rank: Int,
+    val rating1: Int,
+    val rating2: Int,
+    val rating3: Int,
+    val rating4: Int,
+    val rating5: Int,
+    val rating6: Int,
+    val rating7: Int,
+    val rating8: Int,
+    val rating9: Int,
+    val rating10: Int,
+    val wish: Int,
+    val collect: Int,
+    val doing: Int,
+    val onHold: Int,
+    val dropped: Int,
+    val tagsJson: String,
+    val metaTagsJson: String,
+    val infoboxText: String,
+    val episodeCount: Int,
+    val isFavorite: Boolean,
+    val nsfw: Boolean,
+    val syncedAt: Long,
+    val detailSyncedAt: Long,
+    @ColumnInfo(defaultValue = "1") val isCatalogMember: Boolean,
+    @ColumnInfo(defaultValue = "0") val catalogGeneration: Long,
+    @ColumnInfo(defaultValue = "0") val isBlocked: Boolean,
+    @ColumnInfo(defaultValue = "NULL") val bangumiCollectionType: Int? = null,
+    @ColumnInfo(defaultValue = "0") val bangumiCollectionSyncedAt: Long = 0L,
+    @ColumnInfo(defaultValue = "NULL") val winLose: String? = null,
+)
