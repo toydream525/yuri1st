@@ -33,8 +33,8 @@
 
 | 信息流 | 详情页：点格子 + AI 分析 |
 | --- | --- |
-| ![信息流](docs/screenshots/01-main-list.png) | ![详情页](docs/screenshots/02-detail-ai-pointgrid.png) |
+| ![信息流](https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/01-main-list.jpg) | ![详情页](https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/02-detail-ai-pointgrid.jpg) |
 
 | 批量点格子 | AI 设置 | 本页 AI 分析 |
 | --- | --- | --- |
-| ![批量点格子](docs/screenshots/03-batch-pointgrid.png) | ![AI 设置](docs/screenshots/04-ai-settings.png) | ![本页 AI 分析](docs/screenshots/05-batch-ai.png) |
+| ![批量点格子](https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/03-batch-pointgrid.jpg) | ![AI 设置](https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/04-ai-settings.jpg) | ![本页 AI 分析](https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/05-batch-ai.jpg) |
