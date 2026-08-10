@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yuri1st — 百合作品避雷与点格子工具</title>
+  <meta name="description" content="yuri1st：AI 雷点分析 + Bangumi 点格子的百合作品 Android 应用。">
+  <style>
+    :root {
+      --primary: #9a3c72;
+      --primary-soft: #ffd8e9;
+      --bg: #fff7fc;
+      --text: #2b1f27;
+      --muted: #745663;
+      --card: #ffffff;
+      --border: #f3dde6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0;
+    }
+    .logo { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: .5px; }
+    .logo small { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
+    nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 14px; }
+    nav a:hover { color: var(--primary); }
+    .hero { text-align: center; padding: 70px 0 46px; }
+    .hero h1 { font-size: 46px; color: var(--primary); letter-spacing: 1px; }
+    .hero p { margin-top: 14px; font-size: 18px; color: var(--muted); max-width: 640px; margin-left: auto; margin-right: auto; }
+    .cta { margin-top: 30px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 13px 26px; border-radius: 999px;
+      text-decoration: none; font-weight: 700; font-size: 15px;
+      background: var(--primary); color: #fff;
+    }
+    .btn.ghost { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+    section { padding: 48px 0; }
+    h2 { font-size: 26px; color: var(--primary); margin-bottom: 22px; text-align: center; }
+    .platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .platform {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 20px; text-align: center;
+    }
+    .platform .icon { font-size: 30px; }
+    .platform h3 { font-size: 16px; margin: 8px 0 4px; }
+    .platform .status { font-size: 13px; color: var(--muted); }
+    .platform .ready { color: var(--primary); font-weight: 700; }
+    .platform a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+    .feature {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 22px;
+    }
+    .feature .icon { font-size: 26px; }
+    .feature h3 { font-size: 17px; margin: 10px 0 8px; color: var(--primary); }
+    .feature p { font-size: 14px; color: var(--muted); }
+    .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .shots figure { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px; }
+    .shots img { width: 100%; border-radius: 8px; display: block; }
+    .shots figcaption { font-size: 12px; color: var(--muted); text-align: center; padding-top: 8px; }
+    footer { text-align: center; padding: 34px 0 46px; color: var(--muted); font-size: 13px; }
+    footer a { color: var(--primary); text-decoration: none; }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 34px; }
+      .hero p { font-size: 16px; }
+      nav a { margin-left: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">yuri1st<small>百合作品避雷工具</small></div>
+      <nav>
+        <a href="#features">功能</a>
+        <a href="#platforms">平台</a>
+        <a href="#shots">截图</a>
+        <a href="https://github.com/toydream525/yuri1st">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <h1>yuri1st</h1>
+      <p>用 AI 帮你判断百合作品的雷点，一键同步 Bangumi 收藏状态。整理百合 / 轻百合动画、漫画、轻小说和游戏。</p>
+      <div class="cta">
+        <a class="btn" href="https://github.com/toydream525/yuri1st/releases/latest">📦 下载 Android APK</a>
+        <a class="btn ghost" href="https://github.com/toydream525/yuri1st">查看源码</a>
+      </div>
+    </div>
+
+    <section id="platforms">
+      <h2>支持平台</h2>
+      <div class="platforms">
+        <div class="platform">
+          <div class="icon">🤖</div>
+          <h3>Android</h3>
+          <p class="status ready">✅ 已发布</p>
+          <p><a href="https://github.com/toydream525/yuri1st/releases/latest">下载 APK</a></p>
+        </div>
+        <div class="platform">
+          <div class="icon">🍎</div>
+          <h3>iOS</h3>
+          <p class="status">规划中（需 Kotlin Multiplatform 移植）</p>
+        </div>
+        <div class="platform">
+          <div class="icon">🖥️</div>
+          <h3>Windows / macOS</h3>
+          <p class="status">规划中（Compose Multiplatform 桌面版）</p>
+        </div>
+        <div class="platform">
+          <div class="icon">🌐</div>
+          <h3>网页版</h3>
+          <p class="status">待定</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>功能介绍</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="icon">🤖</div>
+          <h3>AI 雷点分析</h3>
+          <p>标准 OpenAI 兼容接口（OpenAI / DeepSeek / 自建端点），判断真百 / 轻百 / 非百，列出雷点与置信度，结果仅供参考；支持本页批量分析与可编辑提示词。</p>
+        </div>
+        <div class="feature">
+          <div class="icon">📌</div>
+          <h3>Bangumi 点格子</h3>
+          <p>把想看 / 看过 / 在看 / 搁置 / 抛弃写入你的 Bangumi 账号；支持单条与批量（当前页或全部分类），自动限速防风控。</p>
+        </div>
+        <div class="feature">
+          <div class="icon">📚</div>
+          <h3>百合目录</h3>
+          <p>动画 / 漫画 / 轻小说 / 游戏分类浏览，列表 / 封面双视图，支持多条件筛选与页码跳转。</p>
+        </div>
+        <div class="feature">
+          <div class="icon">⚖️</div>
+          <h3>赢面 / 输面</h3>
+          <p>给每个作品打上你自己的自定义标记，并可按赢面 / 输面快速筛选。</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🔒</div>
+          <h3>隐私友好</h3>
+          <p>Bangumi Token 与 AI Key 使用 Android Keystore 加密保存；不读取评论区，不收集账号密码。</p>
+        </div>
+        <div class="feature">
+          <div class="icon">⚡</div>
+          <h3>流畅信息流</h3>
+          <p>针对高刷新率屏幕优化，Release 构建滚动掉帧率实测接近 0。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="shots">
+      <h2>截图</h2>
+      <div class="shots">
+        <figure>
+          <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/01-main-list.jpg" alt="信息流">
+          <figcaption>信息流（AI 徽章 / 赢面 / 输面）</figcaption>
+        </figure>
+        <figure>
+          <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/02-detail-ai-pointgrid.jpg" alt="详情页">
+          <figcaption>详情页：点格子 + AI 雷点分析</figcaption>
+        </figure>
+        <figure>
+          <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/03-batch-pointgrid.jpg" alt="批量点格子">
+          <figcaption>一键批量点格子</figcaption>
+        </figure>
+        <figure>
+          <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/04-ai-settings.jpg" alt="AI 设置">
+          <figcaption>AI 分析设置</figcaption>
+        </figure>
+        <figure>
+          <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/05-batch-ai.jpg" alt="本页 AI 分析">
+          <figcaption>一键本页 AI 分析</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <footer>
+      <p>yuri1st 是开源项目（MIT License）· <a href="https://github.com/toydream525/yuri1st">GitHub 仓库</a> · 数据来自 <a href="https://bgm.tv">Bangumi</a></p>
+      <p>AI 分析结果由模型生成，仅供参考。</p>
+    </footer>
+  </div>
+</body>
+</html>
