@@ -42,6 +42,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
@@ -146,18 +147,18 @@ fun CatalogScreen(
     onCancelBatchPointGrid: () -> Unit,
     onDismissBatchPointGrid: () -> Unit,
 ) {
-    var showProxySettings by rememberSaveable { mutableStateOf(false) }
-    var showAccessTokenSettings by rememberSaveable { mutableStateOf(false) }
-    var showForceRefreshConfirmation by rememberSaveable { mutableStateOf(false) }
-    var showRefreshConfirmation by rememberSaveable { mutableStateOf(false) }
-    var showSearchDialog by rememberSaveable { mutableStateOf(false) }
+    var showProxySettings by remember { mutableStateOf(false) }
+    var showAccessTokenSettings by remember { mutableStateOf(false) }
+    var showForceRefreshConfirmation by remember { mutableStateOf(false) }
+    var showRefreshConfirmation by remember { mutableStateOf(false) }
+    var showSearchDialog by remember { mutableStateOf(false) }
     var showAdvancedFilters by rememberSaveable { mutableStateOf(false) }
-    var showBlockedSubjects by rememberSaveable { mutableStateOf(false) }
-    var showBlockWords by rememberSaveable { mutableStateOf(false) }
-    var showAbout by rememberSaveable { mutableStateOf(false) }
-    var showAiSettings by rememberSaveable { mutableStateOf(false) }
-    var showBatchAiConfirm by rememberSaveable { mutableStateOf(false) }
-    var showBatchPointGrid by rememberSaveable { mutableStateOf(false) }
+    var showBlockedSubjects by remember { mutableStateOf(false) }
+    var showBlockWords by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
+    var showAiSettings by remember { mutableStateOf(false) }
+    var showBatchAiConfirm by remember { mutableStateOf(false) }
+    var showBatchPointGrid by remember { mutableStateOf(false) }
     var pendingBlockSubject by remember { mutableStateOf<Subject?>(null) }
 
     if (showBatchAiConfirm) {
@@ -1185,10 +1186,19 @@ private fun SearchDialog(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ) {
-                    Text(if (isReference) "导入" else "在线搜索")
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        if (isReference) "导入" else "在线搜索",
+                        fontWeight = FontWeight.Bold,
+                    )
                 }
             } else {
-                TextButton(onClick = onSearchOnline, enabled = false) {
+                OutlinedButton(onClick = onSearchOnline, enabled = false) {
                     Text(if (isReference) "导入" else "在线搜索")
                 }
             }
