@@ -5,7 +5,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1658,25 +1661,29 @@ private fun SubjectCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                IconButton(
-                    onClick = onToggleFavorite,
-                    modifier = Modifier.size(32.dp),
-                ) {
-                    Icon(
-                        if (subject.isFavorite) {
-                            Icons.Filled.Favorite
-                        } else {
-                            Icons.Filled.FavoriteBorder
-                        },
-                        contentDescription = if (subject.isFavorite) "取消收藏" else "收藏",
-                        tint = if (subject.isFavorite) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                val favoriteInteraction = remember { MutableInteractionSource() }
+                Icon(
+                    if (subject.isFavorite) {
+                        Icons.Filled.Favorite
+                    } else {
+                        Icons.Filled.FavoriteBorder
+                    },
+                    contentDescription = if (subject.isFavorite) "取消收藏" else "收藏",
+                    tint = if (subject.isFavorite) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            interactionSource = favoriteInteraction,
+                            indication = null,
+                            onClick = onToggleFavorite,
+                        )
+                        .padding(6.dp),
+                )
                 WinLoseButton(
                     winLose = WinLose.WIN,
                     selected = subject.winLose == WinLose.WIN,
@@ -1687,17 +1694,21 @@ private fun SubjectCard(
                     selected = subject.winLose == WinLose.LOSE,
                     onClick = { onToggleWinLose(subject, WinLose.LOSE) },
                 )
-                IconButton(
-                    onClick = onToggleBlocked,
-                    modifier = Modifier.size(32.dp),
-                ) {
-                    Icon(
-                        Icons.Filled.Block,
-                        contentDescription = "屏蔽",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                val blockInteraction = remember { MutableInteractionSource() }
+                Icon(
+                    Icons.Filled.Block,
+                    contentDescription = "屏蔽",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            interactionSource = blockInteraction,
+                            indication = null,
+                            onClick = onToggleBlocked,
+                        )
+                        .padding(6.dp),
+                )
             }
         }
     }
@@ -1709,6 +1720,7 @@ private fun WinLoseButton(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     val containerColor = when {
         selected && winLose == WinLose.WIN -> MaterialTheme.colorScheme.primaryContainer
         selected && winLose == WinLose.LOSE -> MaterialTheme.colorScheme.errorContainer
@@ -1724,14 +1736,22 @@ private fun WinLoseButton(
         selected && winLose == WinLose.LOSE -> MaterialTheme.colorScheme.error
         else -> androidx.compose.ui.graphics.Color.Transparent
     }
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(8.dp),
-        color = containerColor,
-        border = BorderStroke(if (selected) 1.5.dp else 1.dp, borderColor),
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(containerColor)
+            .border(
+                BorderStroke(if (selected) 1.5.dp else 1.dp, borderColor),
+                RoundedCornerShape(8.dp),
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(horizontal = 8.dp, vertical = 3.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
