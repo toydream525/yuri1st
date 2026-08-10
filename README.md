@@ -2,6 +2,8 @@
 
 一个专注百合作品的 Android 应用：整理 Bangumi 上的百合 / 轻百合动画、漫画、轻小说和游戏，用 AI 判断作品雷点，并一键同步你的 Bangumi 收藏状态。
 
+📦 下载 Android APK：[yuri1st v0.3.0](https://github.com/toydream525/yuri1st/releases/latest)（当前为调试签名测试版）
+
 ## 功能介绍
 
 ### AI 雷点分析
