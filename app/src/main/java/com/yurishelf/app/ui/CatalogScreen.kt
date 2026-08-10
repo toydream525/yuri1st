@@ -53,14 +53,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -82,6 +82,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.imageLoader
 import coil.request.ImageRequest
 import com.yurishelf.app.BuildConfig
 import com.yurishelf.app.data.SeedInfo
@@ -161,6 +162,22 @@ fun CatalogScreen(
     var showBatchPointGrid by remember { mutableStateOf(false) }
     var pendingBlockSubject by remember { mutableStateOf<Subject?>(null) }
 
+    val context = LocalContext.current
+    val imageLoader = context.imageLoader
+    LaunchedEffect(state.subjects) {
+        state.subjects.forEach { subject ->
+            if (subject.imageUrl.isNotBlank()) {
+                imageLoader.enqueue(
+                    ImageRequest.Builder(context)
+                        .data(subject.imageUrl)
+                        .size(PREFETCH_IMAGE_WIDTH, PREFETCH_IMAGE_HEIGHT)
+                        .memoryCacheKey(subject.imageUrl)
+                        .build(),
+                )
+            }
+        }
+    }
+
     if (showBatchAiConfirm) {
         BatchAiConfirmDialog(
             count = state.subjects.size,
@@ -173,16 +190,23 @@ fun CatalogScreen(
     }
 
     if (state.batchAiState.running) {
-        BatchAiProgressDialog(
-            state = state.batchAiState,
+        BatchProgressDialog(
+            title = "正在批量 AI 分析",
+            done = state.batchAiState.done,
+            total = state.batchAiState.total,
+            currentTitle = state.batchAiState.currentTitle,
+            footnote = "每部之间自动限速；取消后已完成的结果仍会保留。",
             onCancel = onCancelBatchAi,
         )
     } else if (
         state.batchAiState.total > 0 &&
         state.batchAiState.done >= state.batchAiState.total
     ) {
-        BatchAiResultDialog(
-            state = state.batchAiState,
+        BatchResultDialog(
+            title = "批量 AI 分析完成",
+            summary = "成功 ${state.batchAiState.success} 部，失败 ${state.batchAiState.failed} 部。" +
+                "结果已缓存，列表和封面会显示 AI 徽章。",
+            lastError = state.batchAiState.lastError,
             onDismiss = onDismissBatchAi,
         )
     }
@@ -200,8 +224,16 @@ fun CatalogScreen(
     }
 
     if (state.batchPointGridState.running) {
-        BatchPointGridProgressDialog(
-            state = state.batchPointGridState,
+        val grid = state.batchPointGridState
+        BatchProgressDialog(
+            title = "正在批量点格子（${grid.scopeLabel}）",
+            done = grid.done,
+            total = grid.total,
+            currentTitle = grid.currentTitle,
+            footnote = buildString {
+                if (grid.skipped > 0) append("已跳过 ${grid.skipped} 条（已在目标列表中）。")
+                append("正在限速写入，避免触发 Bangumi 频率限制；可随时取消。")
+            },
             onCancel = onCancelBatchPointGrid,
         )
     } else if (
@@ -212,8 +244,12 @@ fun CatalogScreen(
                 state.batchPointGridState.total == 0 &&
                 state.batchPointGridState.skipped > 0)
     ) {
-        BatchPointGridResultDialog(
-            state = state.batchPointGridState,
+        val grid = state.batchPointGridState
+        BatchResultDialog(
+            title = "批量点格子完成",
+            summary = "成功 ${grid.success} 条，失败 ${grid.failed} 条，" +
+                "跳过 ${grid.skipped} 条（已在目标列表中）。",
+            lastError = grid.lastError,
             onDismiss = onDismissBatchPointGrid,
         )
     }
@@ -940,6 +976,8 @@ private const val ERROR_NOTICE_DURATION_MILLIS = 1_000L
 private const val NSFW_NOTICE_DURATION_MILLIS = 1_000L
 private const val SEED_NOTICE_DURATION_MILLIS = 3_000L
 private const val DEFAULT_RANDOM_MINIMUM_SCORE = 7.0
+private const val PREFETCH_IMAGE_WIDTH = 480
+private const val PREFETCH_IMAGE_HEIGHT = 640
 
 @Composable
 private fun RandomPicksDialog(
@@ -1335,28 +1373,32 @@ private fun BatchAiConfirmDialog(
 }
 
 @Composable
-private fun BatchAiProgressDialog(
-    state: BatchAiState,
+private fun BatchProgressDialog(
+    title: String,
+    done: Int,
+    total: Int,
+    currentTitle: String,
+    footnote: String,
     onCancel: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = {},
-        title = { Text("正在批量 AI 分析") },
+        title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 LinearProgressIndicator(
                     progress = {
-                        if (state.total > 0) state.done.toFloat() / state.total else 0f
+                        if (total > 0) done.toFloat() / total else 0f
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Text(
-                    "${state.done}/${state.total} · 当前：${state.currentTitle}",
+                    "$done/$total · 当前：$currentTitle",
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "每部之间自动限速；取消后已完成的结果仍会保留。",
+                    footnote,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -1369,20 +1411,19 @@ private fun BatchAiProgressDialog(
 }
 
 @Composable
-private fun BatchAiResultDialog(
-    state: BatchAiState,
+private fun BatchResultDialog(
+    title: String,
+    summary: String,
+    lastError: String?,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("批量 AI 分析完成") },
+        title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "成功 ${state.success} 部，失败 ${state.failed} 部。" +
-                        "结果已缓存，列表和封面会显示 AI 徽章。",
-                )
-                state.lastError?.let { error ->
+                Text(summary)
+                lastError?.let { error ->
                     Text(
                         "示例错误：$error",
                         style = MaterialTheme.typography.bodySmall,
@@ -1469,75 +1510,6 @@ private fun BatchPointGridDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("取消") }
-        },
-    )
-}
-
-@Composable
-private fun BatchPointGridProgressDialog(
-    state: BatchPointGridState,
-    onCancel: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = {},
-        title = { Text("正在批量点格子（${state.scopeLabel}）") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                LinearProgressIndicator(
-                    progress = {
-                        if (state.total > 0) state.done.toFloat() / state.total else 0f
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Text(
-                    "${state.done}/${state.total} · 当前：${state.currentTitle}",
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (state.skipped > 0) {
-                    Text(
-                        "已跳过 ${state.skipped} 条（已在目标列表中）。",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                Text(
-                    "正在限速写入，避免触发 Bangumi 频率限制；可随时取消。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onCancel) { Text("取消") }
-        },
-    )
-}
-
-@Composable
-private fun BatchPointGridResultDialog(
-    state: BatchPointGridState,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("批量点格子完成") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "成功 ${state.success} 条，失败 ${state.failed} 条，" +
-                        "跳过 ${state.skipped} 条（已在目标列表中）。",
-                )
-                state.lastError?.let { error ->
-                    Text(
-                        "示例错误：$error",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("关闭") }
         },
     )
 }
@@ -1765,9 +1737,9 @@ private fun WinLoseButton(
         ) {
             Icon(
                 if (winLose == WinLose.WIN) {
-                    Icons.Filled.TrendingUp
+                    Icons.AutoMirrored.Filled.TrendingUp
                 } else {
-                    Icons.Filled.TrendingDown
+                    Icons.AutoMirrored.Filled.TrendingDown
                 },
                 contentDescription = null,
                 tint = contentColor,
