@@ -44,6 +44,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -390,9 +392,9 @@ class CatalogViewModel(
             }
         }
         viewModelScope.launch {
-            uiState.collect { state ->
-                repository.debugLog("save: detail=${state.selectedSubjectKey?.cacheKey ?: "none"}")
-                repository.saveUiSnapshot(
+            uiState
+                .drop(1)
+                .map { state ->
                     UiSnapshot(
                         typeName = state.filters.type.name,
                         query = state.filters.query,
@@ -407,9 +409,12 @@ class CatalogViewModel(
                         page = state.currentPage,
                         viewModeName = state.viewMode.name,
                         detailKey = state.selectedSubjectKey?.cacheKey,
-                    ),
-                )
-            }
+                    )
+                }
+                .distinctUntilChanged()
+                .collect { snapshot ->
+                    repository.saveUiSnapshot(snapshot)
+                }
         }
     }
 
