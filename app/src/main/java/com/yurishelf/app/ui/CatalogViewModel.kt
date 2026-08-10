@@ -158,6 +158,7 @@ class CatalogViewModel(
     private val filters = MutableStateFlow(
         CatalogFilters(includeNsfw = false),
     )
+    private val latestSearchQuery = MutableStateFlow("")
     private val syncState = MutableStateFlow<SyncState>(SyncState.Idle)
     private val requestedPage = MutableStateFlow(1)
     private val selectedSubjectKey = MutableStateFlow<SubjectKey?>(null)
@@ -196,6 +197,7 @@ class CatalogViewModel(
     private var proxySaveJob: Job? = null
     private var accessTokenSaveJob: Job? = null
     private var searchJob: Job? = null
+    private var searchDebounceJob: Job? = null
     private var batchAiJob: Job? = null
     private var batchPointGridJob: Job? = null
     private var queuedRefreshMode: SyncMode? = null
@@ -424,6 +426,7 @@ class CatalogViewModel(
             runCatching { CatalogViewMode.valueOf(name) }.getOrNull()
         } ?: CatalogViewMode.LIST
         val includeNsfw = filters.value.includeNsfw
+        latestSearchQuery.value = snapshot.query
         filters.value = CatalogFilters(
             type = type,
             query = snapshot.query,
@@ -463,12 +466,17 @@ class CatalogViewModel(
     }
 
     fun setSearchQuery(query: String) {
-        requestedPage.value = 1
-        filters.update { it.copy(query = query) }
+        latestSearchQuery.value = query
+        searchDebounceJob?.cancel()
+        searchDebounceJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_MS)
+            requestedPage.value = 1
+            filters.update { it.copy(query = query) }
+        }
     }
 
     fun searchOnline() {
-        val query = filters.value.query.trim()
+        val query = latestSearchQuery.value.trim()
         if (query.isEmpty()) return
         if (searchJob?.isActive == true) return
         searchJob = viewModelScope.launch {
@@ -1066,6 +1074,7 @@ class CatalogViewModel(
     companion object {
         private const val PAGE_SIZE = 20
         private const val RANDOM_PICK_COUNT = 5
+        private const val SEARCH_DEBOUNCE_MS = 120L
         private const val BATCH_AI_GAP_MS = 800L
         private const val BATCH_POINT_GRID_GAP_MS = 1_200L
         fun factory(repository: CatalogRepository): ViewModelProvider.Factory = viewModelFactory {
