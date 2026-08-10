@@ -75,6 +75,7 @@ class AppContainer(context: Context) {
 
     val imageLoader: ImageLoader = ImageLoader.Builder(context)
         .callFactory(networkCallFactory)
+        .crossfade(false)
         .build()
 
     init {

@@ -1,6 +1,5 @@
 package com.yurishelf.app.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
@@ -136,6 +135,7 @@ data class BatchAiState(
     val success: Int = 0,
     val failed: Int = 0,
     val currentTitle: String = "",
+    val lastError: String? = null,
 )
 
 data class BatchPointGridState(
@@ -147,6 +147,7 @@ data class BatchPointGridState(
     val skipped: Int = 0,
     val currentTitle: String = "",
     val scopeLabel: String = "",
+    val lastError: String? = null,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -315,11 +316,8 @@ class CatalogViewModel(
         detailMessage,
     ) { state, analyses, analyzingKey, updatingKey, message ->
         val visibleSubject = state.subject
-        val analysis = visibleSubject?.let {
-            analyses.firstOrNull { item ->
-                item.subjectId == it.id && item.catalogType == it.type
-            }
-        }
+        val analysesByKey = analyses.associateBy { it.cacheKey }
+        val analysis = visibleSubject?.let { analysesByKey[it.key.cacheKey] }
         DetailUiState(
             subject = visibleSubject,
             loading = state.loading,
@@ -335,7 +333,6 @@ class CatalogViewModel(
     )
 
     init {
-        Log.d(TAG_RESTORE, "viewmodel init, snapshot=" + repository.loadUiSnapshot())
         restoreStoredUiState()
         viewModelScope.launch {
             val hasAccessToken = withContext(Dispatchers.IO) {
@@ -373,17 +370,11 @@ class CatalogViewModel(
             }.collect { (subject, includeNsfw) ->
                 val selectedKey = selectedSubjectKey.value
                 if (subject == null && selectedKey != null) {
-                    Log.d(TAG_RESTORE, "clearing key=$selectedKey reason=subjectNull")
-                    repository.debugMarker("clear_reason", "subjectNull:$selectedKey")
-                    repository.debugLog("clear: subjectNull:$selectedKey")
                     detailRefreshJob?.cancel()
                     detailLoading.value = false
                     selectedSubjectKey.value = null
                     syncState.value = SyncState.Failed("该条目已不在当前目录中")
                 } else if (subject?.nsfw == true && !includeNsfw) {
-                    Log.d(TAG_RESTORE, "clearing key=$selectedKey reason=nsfwHidden")
-                    repository.debugMarker("clear_reason", "nsfwHidden:$selectedKey")
-                    repository.debugLog("clear: nsfwHidden:$selectedKey")
                     detailRefreshJob?.cancel()
                     detailLoading.value = false
                     selectedSubjectKey.value = null
@@ -420,9 +411,6 @@ class CatalogViewModel(
 
     private fun restoreStoredUiState() {
         val snapshot = repository.loadUiSnapshot() ?: return
-        Log.d(TAG_RESTORE, "restoring snapshot=$snapshot")
-        repository.debugMarker("restore_applied", snapshot.detailKey ?: "no-detail")
-        repository.debugLog("restore: detail=${snapshot.detailKey ?: "none"}")
         val type = snapshot.typeName?.let { name ->
             runCatching { CatalogType.valueOf(name) }.getOrNull()
         } ?: CatalogType.ANIME
@@ -768,9 +756,6 @@ class CatalogViewModel(
     }
 
     fun openSubjectKey(key: SubjectKey) {
-        Log.d(TAG_RESTORE, "open key=$key")
-        repository.debugMarker("last_open", key.cacheKey)
-        repository.debugLog("open: $key")
         selectedSubjectKey.value = key
         detailRefreshJob?.cancel()
         detailRefreshJob = viewModelScope.launch {
@@ -791,7 +776,6 @@ class CatalogViewModel(
     }
 
     fun closeSubject() {
-        repository.debugLog("close: ${selectedSubjectKey.value?.cacheKey ?: "none"}")
         detailRefreshJob?.cancel()
         detailLoading.value = false
         selectedSubjectKey.value = null
@@ -842,6 +826,7 @@ class CatalogViewModel(
             val total = subjects.size
             var success = 0
             var failed = 0
+            var lastError: String? = null
             batchAiState.value = BatchAiState(running = true, total = total)
             subjects.forEachIndexed { index, subject ->
                 batchAiState.value = batchAiState.value.copy(
@@ -853,8 +838,9 @@ class CatalogViewModel(
                     success += 1
                 } catch (error: CancellationException) {
                     throw error
-                } catch (_: Throwable) {
+                } catch (error: Throwable) {
                     failed += 1
+                    if (lastError == null) lastError = error.toUserMessage()
                 }
                 if (index < total - 1) delay(BATCH_AI_GAP_MS)
             }
@@ -864,6 +850,7 @@ class CatalogViewModel(
                 total = total,
                 success = success,
                 failed = failed,
+                lastError = lastError,
             )
         }
     }
@@ -908,7 +895,11 @@ class CatalogViewModel(
             val subjects = if (allEntries) {
                 withContext(Dispatchers.Default) {
                     repository.getAllCatalogMembers()
-                        .filter { it.type == currentType && (includeNsfw || !it.nsfw) }
+                        .filter {
+                            it.type == currentType &&
+                                !it.isBlocked &&
+                                (includeNsfw || !it.nsfw)
+                        }
                 }
             } else {
                 uiState.value.subjects
@@ -927,6 +918,7 @@ class CatalogViewModel(
             }
             var success = 0
             var failed = 0
+            var lastError: String? = null
             batchPointGridState.value = BatchPointGridState(
                 running = true,
                 total = total,
@@ -943,8 +935,9 @@ class CatalogViewModel(
                     success += 1
                 } catch (error: CancellationException) {
                     throw error
-                } catch (_: Throwable) {
+                } catch (error: Throwable) {
                     failed += 1
+                    if (lastError == null) lastError = error.toUserMessage()
                 }
                 if (index < total - 1) delay(BATCH_POINT_GRID_GAP_MS)
             }
@@ -953,6 +946,7 @@ class CatalogViewModel(
                 done = total,
                 success = success,
                 failed = failed,
+                lastError = lastError,
             )
         }
     }
@@ -1071,8 +1065,6 @@ class CatalogViewModel(
         private const val RANDOM_PICK_COUNT = 5
         private const val BATCH_AI_GAP_MS = 800L
         private const val BATCH_POINT_GRID_GAP_MS = 1_200L
-        private const val TAG_RESTORE = "YuriShelfRestore"
-
         fun factory(repository: CatalogRepository): ViewModelProvider.Factory = viewModelFactory {
             initializer { CatalogViewModel(repository) }
         }

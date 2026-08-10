@@ -117,4 +117,9 @@ interface SubjectDao {
         catalogType: String,
         winLose: String?,
     )
+
+    @Query(
+        "DELETE FROM ai_analyses WHERE subjectId = :subjectId AND catalogType = :catalogType",
+    )
+    suspend fun deleteAiAnalysis(subjectId: Int, catalogType: String)
 }

@@ -131,6 +131,7 @@ class CatalogRepository(
 
     suspend fun deleteSubject(key: SubjectKey) {
         dao.deleteByKey(key.id, key.catalogType.name)
+        dao.deleteAiAnalysis(key.id, key.catalogType.name)
         addTombstone(key.id, key.catalogType)
     }
 
@@ -352,15 +353,6 @@ class CatalogRepository(
 
     suspend fun saveUiSnapshot(snapshot: UiSnapshot): Boolean = preferences.saveUiSnapshot(snapshot)
 
-    fun debugMarker(key: String, value: String) {
-        preferences.edit().putString("debug_$key", value).apply()
-    }
-
-    fun debugLog(event: String) {
-        val previous = preferences.getString("debug_log", "").orEmpty()
-        val lines = (previous.split("\n") + event).takeLast(24)
-        preferences.edit().putString("debug_log", lines.joinToString("\n")).apply()
-    }
 
     suspend fun saveAiSettings(
         settings: AiSettings,

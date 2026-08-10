@@ -1377,10 +1377,19 @@ private fun BatchAiResultDialog(
         onDismissRequest = onDismiss,
         title = { Text("批量 AI 分析完成") },
         text = {
-            Text(
-                "成功 ${state.success} 部，失败 ${state.failed} 部。" +
-                    "结果已缓存，列表和封面会显示 AI 徽章。",
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "成功 ${state.success} 部，失败 ${state.failed} 部。" +
+                        "结果已缓存，列表和封面会显示 AI 徽章。",
+                )
+                state.lastError?.let { error ->
+                    Text(
+                        "示例错误：$error",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("关闭") }
@@ -1513,10 +1522,19 @@ private fun BatchPointGridResultDialog(
         onDismissRequest = onDismiss,
         title = { Text("批量点格子完成") },
         text = {
-            Text(
-                "成功 ${state.success} 条，失败 ${state.failed} 条，" +
-                    "跳过 ${state.skipped} 条（已在目标列表中）。",
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "成功 ${state.success} 条，失败 ${state.failed} 条，" +
+                        "跳过 ${state.skipped} 条（已在目标列表中）。",
+                )
+                state.lastError?.let { error ->
+                    Text(
+                        "示例错误：$error",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("关闭") }
