@@ -2,6 +2,7 @@ package com.yurishelf.app
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        requestStable60Hz()
         setContent {
             val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
             val detailState = viewModel.detailState.collectAsStateWithLifecycle().value
@@ -126,4 +128,27 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    /**
+     * 屏幕默认是 120Hz，列表滚动时帧长在 6~12ms 之间波动，
+     * 会在 120Hz 下产生不均匀的帧节奏（每两帧漏一拍），看起来反而卡。
+     * 锁定 60Hz 后每帧有完整的 16.6ms 预算，滚动节奏稳定。
+     */
+    private fun requestStable60Hz() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val mode60 = display?.supportedModes
+                ?.minByOrNull { kotlin.math.abs(it.refreshRate - 60f) }
+            if (mode60 != null) {
+                window.attributes = window.attributes.apply {
+                    preferredDisplayModeId = mode60.modeId
+                }
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.attributes = window.attributes.apply {
+                preferredRefreshRate = 60f
+            }
+        }
+    }
+
 }
