@@ -117,7 +117,7 @@ Bangumi 官方要求 API 请求携带可联系的 User-Agent，格式为：
 Debug 构建内置开发版 User-Agent，可直接使用公开 API；Release 构建强制要求通过 Gradle 属性或环境变量提供正式标识，缺少时会主动失败：
 
 ```bash
-BANGUMI_USER_AGENT='YuriShelf/0.3.0 (你的bgm用户名; https://github.com/你的账号/yurishelf)' \
+BANGUMI_USER_AGENT='YuriShelf/0.3.0 (你的bgm用户名; https://github.com/toydream525/YuriShelf)' \
   ./gradlew assembleRelease
 ```
 
@@ -162,7 +162,7 @@ BANGUMI_USER_AGENT='YuriShelf/0.3.0 (developer-id; https://example.com/yurishelf
 
 ## 开源与许可证
 
-- 源码仓库：开源发布在 GitHub（仓库地址待创建后补充）。
+- 源码仓库：[github.com/toydream525/YuriShelf](https://github.com/toydream525/YuriShelf)
 - 许可证：本项目采用 [MIT 许可证](LICENSE)。
 - 第三方组件：见 [第三方组件清单](THIRD_PARTY_NOTICES.md)。
 - 条目数据来自 Bangumi 公开接口，数据版权归 Bangumi 及各条目权利方所有。
