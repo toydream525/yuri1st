@@ -1,4 +1,4 @@
-# yuri1st
+# yuri1st · Bangumi 百合作品集
 
 一个浏览 Bangumi 百合 / 轻百合作品集的 Android 应用：把动画、漫画、轻小说和游戏整理到一起，支持搜索、筛选、收藏和屏蔽。
 
