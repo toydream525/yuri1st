@@ -73,10 +73,12 @@ class AppContainer(context: Context) {
         callFactory = networkCallFactory,
     )
 
-    val imageLoader: ImageLoader = ImageLoader.Builder(context)
-        .callFactory(networkCallFactory)
-        .crossfade(false)
-        .build()
+    val imageLoader: ImageLoader by lazy {
+        ImageLoader.Builder(context)
+            .callFactory(networkCallFactory)
+            .crossfade(false)
+            .build()
+    }
 
     init {
         val resetNetwork = {

@@ -79,6 +79,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -731,7 +732,11 @@ fun CatalogScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        items(state.subjects, key = { "${it.type.name}:${it.id}" }) { subject ->
+                        items(
+                            items = state.subjects,
+                            key = { "${it.type.name}:${it.id}" },
+                            contentType = { "subject" },
+                        ) { subject ->
                             SubjectCard(
                                 subject = subject,
                                 onClick = { onOpenSubject(subject) },
@@ -789,6 +794,8 @@ private fun SubjectCoverCard(
                         .size(480, 640)
                         .build(),
                     contentDescription = subject.displayName,
+                    placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                    error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(3f / 4f),
@@ -1545,6 +1552,7 @@ private fun SubjectCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -1557,6 +1565,8 @@ private fun SubjectCard(
                         .size(coverWidth, coverHeight)
                         .build(),
                     contentDescription = subject.displayName,
+                    placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                    error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
                     modifier = Modifier
                         .size(width = 86.dp, height = 122.dp)
                         .clip(RoundedCornerShape(8.dp)),
@@ -1637,13 +1647,19 @@ private fun SubjectCard(
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                     )
-                    if (subject.ratingTotal > 0) {
+                    if (subject.ratingTotal > 0 || subject.rank > 0) {
                         Spacer(Modifier.width(6.dp))
-                        Text("${subject.ratingTotal} 人评分", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            text = buildString {
+                                if (subject.ratingTotal > 0) append("${subject.ratingTotal} 人评分")
+                                if (subject.rank > 0) {
+                                    if (subject.ratingTotal > 0) append(" · ")
+                                    append("排名 #${subject.rank}")
+                                }
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     }
-                }
-                if (subject.rank > 0) {
-                    Text("Bangumi 排名 #${subject.rank}", style = MaterialTheme.typography.labelMedium)
                 }
                 if (subject.tags.isNotEmpty()) {
                     Spacer(Modifier.height(4.dp))
@@ -1676,7 +1692,6 @@ private fun SubjectCard(
                     },
                     modifier = Modifier
                         .size(32.dp)
-                        .clip(RoundedCornerShape(8.dp))
                         .clickable(
                             interactionSource = favoriteInteraction,
                             indication = null,
@@ -1701,7 +1716,6 @@ private fun SubjectCard(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .size(32.dp)
-                        .clip(RoundedCornerShape(8.dp))
                         .clickable(
                             interactionSource = blockInteraction,
                             indication = null,

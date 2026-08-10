@@ -221,14 +221,14 @@ fun filterAndSortSubjects(
             (filters.aiCategory == null || subject.aiAnalysis?.category == filters.aiCategory) &&
             (filters.winLose == null || subject.winLose == filters.winLose) &&
             (filters.format == null || subject.subjectFormat() == filters.format) &&
-            (query.isEmpty() || listOf(
+            (query.isEmpty() || sequenceOf(
                 subject.name,
                 subject.nameCn,
                 subject.platform,
                 subject.infoboxText,
             )
-                .plus(subject.tags)
-                .plus(subject.metaTags)
+                .plus(subject.tags.asSequence())
+                .plus(subject.metaTags.asSequence())
                 .any { it.contains(query, ignoreCase = true) })
     }
 
@@ -249,9 +249,9 @@ fun filterAndSortSubjects(
 
 fun matchesAnyBlockWord(subject: Subject, blockWords: List<String>): Boolean {
     if (blockWords.isEmpty()) return false
-    val haystack = listOf(subject.name, subject.nameCn, subject.platform, subject.infoboxText)
-        .plus(subject.tags)
-        .plus(subject.metaTags)
+    val haystack = sequenceOf(subject.name, subject.nameCn, subject.platform, subject.infoboxText)
+        .plus(subject.tags.asSequence())
+        .plus(subject.metaTags.asSequence())
     return blockWords.any { word ->
         haystack.any { it.contains(word, ignoreCase = true) }
     }
