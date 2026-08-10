@@ -1,4 +1,4 @@
-# 百合条目册（YuriShelf）
+# yuri1st
 
 一个面向百合作品读者的 Android 应用：用 Bangumi v0 API 整理带有精确 `百合` / `轻百合` 标签的动画、漫画、轻小说和游戏，提供本地目录、AI 雷点分析、Bangumi 点格子等特色功能。应用不读取评论、日志、讨论或吐槽。
 
@@ -112,12 +112,12 @@ Bangumi 官方要求 API 请求携带可联系的 User-Agent，格式为：
 应用名/版本 (开发者标识; 项目主页)
 ```
 
-“开发者标识”不需要向 Bangumi 提交申请材料，建议直接使用你的 **bgm.tv 用户名**（如 `YuriShelf/0.3.0 (sai; https://github.com/you/yurishelf)`）。如果你还需要注册第三方 OAuth 应用（获取 `client_id` 等），可在 [bgm.tv/dev/app](https://bgm.tv/dev/app) 创建；本应用只使用个人 Access Token，不依赖 OAuth `client_secret`。
+“开发者标识”不需要向 Bangumi 提交申请材料，建议直接使用你的 **bgm.tv 用户名**（如 `yuri1st/0.3.0 (sai; https://github.com/you/yuri1st)`）。如果你还需要注册第三方 OAuth 应用（获取 `client_id` 等），可在 [bgm.tv/dev/app](https://bgm.tv/dev/app) 创建；本应用只使用个人 Access Token，不依赖 OAuth `client_secret`。
 
 Debug 构建内置开发版 User-Agent，可直接使用公开 API；Release 构建强制要求通过 Gradle 属性或环境变量提供正式标识，缺少时会主动失败：
 
 ```bash
-BANGUMI_USER_AGENT='YuriShelf/0.3.0 (你的bgm用户名; https://github.com/toydream525/YuriShelf)' \
+BANGUMI_USER_AGENT='yuri1st/0.3.0 (你的bgm用户名; https://github.com/toydream525/yuri1st)' \
   ./gradlew assembleRelease
 ```
 
@@ -147,14 +147,14 @@ BANGUMI_USER_AGENT='YuriShelf/0.3.0 (你的bgm用户名; https://github.com/toyd
 ```bash
 ./gradlew test
 ./gradlew assembleDebug
-BANGUMI_USER_AGENT='YuriShelf/0.3.0 (developer-id; https://example.com/yurishelf)' \
+BANGUMI_USER_AGENT='yuri1st/0.3.0 (developer-id; https://example.com/yuri1st)' \
   ./gradlew assembleRelease
 ```
 
 也可以单独验证 Bangumi 是否接受空关键词的标签查询：
 
 ```bash
-BANGUMI_USER_AGENT='YuriShelf/0.3.0 (developer-id; https://example.com/yurishelf)' \
+BANGUMI_USER_AGENT='yuri1st/0.3.0 (developer-id; https://example.com/yuri1st)' \
   python3 scripts/probe_bangumi.py --category anime
 ```
 
@@ -162,7 +162,7 @@ BANGUMI_USER_AGENT='YuriShelf/0.3.0 (developer-id; https://example.com/yurishelf
 
 ## 开源与许可证
 
-- 源码仓库：[github.com/toydream525/YuriShelf](https://github.com/toydream525/YuriShelf)
+- 源码仓库：[github.com/toydream525/yuri1st](https://github.com/toydream525/yuri1st)
 - 许可证：本项目采用 [MIT 许可证](LICENSE)。
 - 第三方组件：见 [第三方组件清单](THIRD_PARTY_NOTICES.md)。
 - 条目数据来自 Bangumi 公开接口，数据版权归 Bangumi 及各条目权利方所有。

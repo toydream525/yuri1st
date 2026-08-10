@@ -29,7 +29,7 @@ android {
     buildTypes {
         debug {
             val userAgent = configuredBangumiUserAgent.orElse(
-                "YuriShelfDev/YuriShelf/0.3.0 (Android; local prototype)",
+                "Yuri1stDev/yuri1st/0.3.0 (Android; local prototype)",
             ).get()
             buildConfigField("String", "BANGUMI_USER_AGENT", buildConfigString(userAgent))
         }
@@ -71,7 +71,7 @@ tasks.configureEach {
     if (name == "preReleaseBuild") {
         doFirst {
             check(configuredBangumiUserAgent.orNull?.isNotBlank() == true) {
-                "Release builds require -PBANGUMI_USER_AGENT='YuriShelf/version (developer-id; project-url)'"
+                "Release builds require -PBANGUMI_USER_AGENT='yuri1st/version (developer-id; project-url)'"
             }
         }
     }

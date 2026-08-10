@@ -10,7 +10,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.YuriShelf"
+        android:theme="@style/Theme.Yuri1st"
         android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
