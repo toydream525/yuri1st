@@ -1,6 +1,15 @@
 # 百合条目册（YuriShelf）
 
-一个只读的 Android 原型，用 Bangumi v0 API 整理带有精确 `百合` 或 `轻百合` 标签的动画、漫画、轻小说和游戏。应用不读取评论、日志、讨论或吐槽。
+一个面向百合作品读者的 Android 应用：用 Bangumi v0 API 整理带有精确 `百合` / `轻百合` 标签的动画、漫画、轻小说和游戏，提供本地目录、AI 雷点分析、Bangumi 点格子等特色功能。应用不读取评论、日志、讨论或吐槽。
+
+## 特色功能
+
+- **本地百合目录**：按动画 / 漫画 / 轻小说 / 游戏分类同步与浏览，内置基础条目可离线使用
+- **AI 雷点分析**：标准 OpenAI 兼容接口（OpenAI、DeepSeek、Moonshot、自建端点等），读取作品资料并可选联网检索，输出真百 / 轻百 / 非百、置信度、理由与雷点列表；提示词可自由编辑，结果标注“仅供参考”
+- **Bangumi 点格子**：把想看 / 看过 / 在看 / 搁置 / 抛弃写入你的 Bangumi 账号；支持单条与批量（当前页或全部分类），自动限速规避频率限制
+- **赢面 / 输面标记**：为每个条目打上你自己的自定义标签，并按此筛选
+- **列表 / 封面双视图**：封面模式每行两个封面；信息流针对高刷新率屏幕做了性能优化，Release 构建滚动掉帧率实测接近 0
+- **隐私友好**：Bangumi Token 与 AI API Key 均用 Android Keystore 加密保存；不收集账号密码，不读取评论区
 
 ## 当前能力
 
@@ -66,6 +75,25 @@ Bangumi 把条目搜索标为实验性 API。网络层、DTO 和仓库层已分�
 
 官方 OAuth 2.0 授权码流程需要 `client_id` 与 `client_secret`；Android APK 无法安全保管 `client_secret`，且官方文档未说明 PKCE，因此本原型不内置该流程。若将来有可信后端，可由后端交换授权码并支持 refresh token。
 
+## 开发者标识（Bangumi User-Agent）
+
+Bangumi 官方要求 API 请求携带可联系的 User-Agent，格式为：
+
+```text
+应用名/版本 (开发者标识; 项目主页)
+```
+
+“开发者标识”不需要向 Bangumi 提交申请材料，建议直接使用你的 **bgm.tv 用户名**（如 `YuriShelf/0.3.0 (sai; https://github.com/you/yurishelf)`）。如果你还需要注册第三方 OAuth 应用（获取 `client_id` 等），可在 [bgm.tv/dev/app](https://bgm.tv/dev/app) 创建；本应用只使用个人 Access Token，不依赖 OAuth `client_secret`。
+
+Debug 构建内置开发版 User-Agent，可直接使用公开 API；Release 构建强制要求通过 Gradle 属性或环境变量提供正式标识，缺少时会主动失败：
+
+```bash
+BANGUMI_USER_AGENT='YuriShelf/0.3.0 (你的bgm用户名; https://github.com/你的账号/yurishelf)' \
+  ./gradlew assembleRelease
+```
+
+正式发布前请把占位主页替换为真实的公开仓库地址，方便 Bangumi 与用户联系到你。
+
 ## AI 雷点分析（高级功能）
 
 在“设置 → 高级功能 → AI 雷点分析”中配置：
@@ -105,7 +133,7 @@ BANGUMI_USER_AGENT='YuriShelf/0.3.0 (developer-id; https://example.com/yurishelf
 
 ## 开源与许可证
 
-- 源码仓库：当前为本地开发原型，公开仓库地址待发布时补充。
+- 源码仓库：开源发布在 GitHub（仓库地址待创建后补充）。
 - 许可证：本项目采用 [MIT 许可证](LICENSE)。
 - 第三方组件：见 [第三方组件清单](THIRD_PARTY_NOTICES.md)。
 - 条目数据来自 Bangumi 公开接口，数据版权归 Bangumi 及各条目权利方所有。

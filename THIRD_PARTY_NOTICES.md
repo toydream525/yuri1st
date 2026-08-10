@@ -28,6 +28,7 @@
 | JUnit | 4.13.2 | 单元测试 | EPL-2.0 |
 | AndroidX Test Ext JUnit | 1.2.1 | 仪器测试支持 | Apache-2.0 |
 | AndroidX Espresso | 3.6.1 | UI 测试 | Apache-2.0 |
+| OkHttp MockWebServer | 4.12.0 | HTTP 接口测试 | Apache-2.0 |
 | Compose UI Test | 随 Compose BOM | Compose UI 测试 | Apache-2.0 |
 
 ## 构建组件
