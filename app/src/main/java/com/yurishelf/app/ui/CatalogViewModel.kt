@@ -170,7 +170,7 @@ class CatalogViewModel(
     private val themeMode = MutableStateFlow(repository.getThemeMode())
     private val nsfwNoticeDismissed = MutableStateFlow(repository.isNsfwNoticeDismissed())
     private val viewMode = MutableStateFlow(CatalogViewMode.LIST)
-    private val aiSettings = MutableStateFlow(repository.getAiSettings())
+    private val aiSettings = MutableStateFlow(AiSettings())
     private val aiAnalyses = repository.observeAiAnalyses().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -335,6 +335,9 @@ class CatalogViewModel(
     init {
         restoreStoredUiState()
         viewModelScope.launch {
+            aiSettings.value = withContext(Dispatchers.IO) {
+                repository.getAiSettings()
+            }
             val hasAccessToken = withContext(Dispatchers.IO) {
                 repository.hasAccessToken()
             }
