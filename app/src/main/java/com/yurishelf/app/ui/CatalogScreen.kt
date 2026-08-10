@@ -413,7 +413,30 @@ fun CatalogScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = { showSearchDialog = true }) {
-                        Icon(Icons.Filled.Search, contentDescription = "搜索")
+                        val hasQuery = state.filters.query.isNotBlank()
+                        Icon(
+                            Icons.Filled.Search,
+                            contentDescription = if (hasQuery) "搜索（有内容）" else "搜索",
+                            tint = if (hasQuery) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier
+                                .size(34.dp)
+                                .then(
+                                    if (hasQuery) {
+                                        Modifier
+                                            .background(
+                                                MaterialTheme.colorScheme.primary,
+                                                RoundedCornerShape(10.dp),
+                                            )
+                                            .padding(6.dp)
+                                    } else {
+                                        Modifier.padding(2.dp)
+                                    },
+                                ),
+                        )
                     }
                     IconButton(onClick = onToggleViewMode) {
                         if (state.viewMode == CatalogViewMode.LIST) {
