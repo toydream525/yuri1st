@@ -87,10 +87,11 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="logo">yuri1st<small>百合作品避雷工具</small></div>
+      <div class="logo">yuri1st<small>百合作品集</small></div>
       <nav>
         <a href="#about">说明</a>
         <a href="#features">功能</a>
+        <a href="#updates">更新</a>
         <a href="#platforms">平台</a>
         <a href="#shots">截图</a>
         <a href="https://github.com/toydream525/yuri1st">GitHub</a>
@@ -110,14 +111,14 @@
       <h2>项目说明</h2>
       <div class="about">
         <p>一个浏览 Bangumi 百合 / 轻百合作品集的 Android 应用：把动画、漫画、轻小说和游戏整理到一起，支持搜索、筛选、收藏和屏蔽。</p>
-        <p>📦 下载 Android APK：<a href="https://github.com/toydream525/yuri1st/releases/latest">yuri1st v0.3.0</a>（当前为调试签名测试版）</p>
+        <p>📦 下载 Android APK：<a href="https://github.com/toydream525/yuri1st/releases/latest">yuri1st v0.4.0</a></p>
         <h3>基础功能</h3>
         <h4>百合作品集</h4>
         <ul>
           <li>动画 / 漫画 / 轻小说 / 游戏分类浏览，数据来自 Bangumi 的百合 / 轻百合标签</li>
-          <li>列表 / 封面双视图，封面模式每行两个封面</li>
+          <li>列表、两列封面、四列密集三种布局，左上角排版按钮一键切换</li>
           <li>搜索：名称、别名、平台、标签、原作/Staff 等；支持粘贴 Bangumi 链接或 ID 导入</li>
-          <li>筛选：年份、最低评分人数、TV / OVA / 剧场版 / 其他、仅收藏、仅 NSFW</li>
+          <li>筛选：年份、最低评分人数、TV / OVA / 剧场版 / 其他、仅收藏、仅 NSFW，并支持反选结果</li>
           <li>每页 20 条，支持输入页码跳转</li>
         </ul>
         <h4>本地功能</h4>
@@ -128,9 +129,9 @@
           <li>NSFW 默认关闭；Bangumi Token 与 AI Key 使用 Android Keystore 加密保存</li>
         </ul>
         <h3>高级功能</h3>
-        <h4>AI 雷点分析</h4>
+        <h4>AI 百合倾向分析</h4>
         <ul>
-          <li>使用 OpenAI 兼容接口判断真百 / 轻百 / 非百并列出雷点，结果仅供参考；支持单条与本页批量分析</li>
+          <li>使用 OpenAI 兼容接口分析真百 / 轻百 / 非百倾向，结果仅供参考；支持单条与本页批量分析、手动分类和自然语言判断偏好</li>
         </ul>
         <h4>Bangumi 点格子</h4>
         <ul>
@@ -175,8 +176,8 @@
       <div class="features">
         <div class="feature">
           <div class="icon">🤖</div>
-          <h3>AI 雷点分析</h3>
-          <p>标准 OpenAI 兼容接口（OpenAI / DeepSeek / 自建端点），判断真百 / 轻百 / 非百，列出雷点与置信度，结果仅供参考；支持本页批量分析与可编辑提示词。</p>
+          <h3>AI 百合倾向分析</h3>
+          <p>标准 OpenAI 兼容接口（OpenAI / DeepSeek / 自建端点），分析真百 / 轻百 / 非百倾向，结果仅供参考；支持本页批量分析、自然语言判断偏好与手动分类。</p>
         </div>
         <div class="feature">
           <div class="icon">📌</div>
@@ -186,7 +187,7 @@
         <div class="feature">
           <div class="icon">📚</div>
           <h3>百合目录</h3>
-          <p>动画 / 漫画 / 轻小说 / 游戏分类浏览，列表 / 封面双视图，支持多条件筛选与页码跳转。</p>
+          <p>动画 / 漫画 / 轻小说 / 游戏分类浏览，支持列表、两列封面、四列密集三种布局，以及多条件筛选与页码跳转。</p>
         </div>
         <div class="feature">
           <div class="icon">⚖️</div>
@@ -206,6 +207,26 @@
       </div>
     </section>
 
+    <section id="updates">
+      <h2>v0.4.0 更新日志</h2>
+      <div class="about">
+        <h3>更直观的 AI 百合倾向分析</h3>
+        <ul>
+          <li>设置改为自然语言“判断偏好”，不再展示技术 JSON。</li>
+          <li>扩大真百 / 轻百默认范围：恋爱标签更倾向真百，百合结局默认真百；BE、男性配角或配角含男性角色不会单独影响判断。</li>
+          <li>仅当男性主要角色与 BG 要素占较大比重，或结局为 BG 时归为非百；首页仅非百显示提示叹号。</li>
+          <li>详情页可手动调整为真百、轻百或非百。</li>
+        </ul>
+        <h3>浏览更灵活</h3>
+        <ul>
+          <li>高级筛选新增反选。</li>
+          <li>左上角排版按钮可在列表、两列封面与四列密集布局之间切换。</li>
+          <li>数据库升级至 Room 7，兼容手动分类数据。</li>
+        </ul>
+        <p><a href="https://github.com/toydream525/yuri1st/blob/main/CHANGELOG.md">查看完整更新日志</a></p>
+      </div>
+    </section>
+
     <section id="shots">
       <h2>截图</h2>
       <div class="shots">
@@ -215,7 +236,7 @@
         </figure>
         <figure>
           <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/02-detail-ai-pointgrid.jpg" alt="详情页">
-          <figcaption>详情页：点格子 + AI 雷点分析</figcaption>
+          <figcaption>详情页：点格子 + AI 百合倾向分析</figcaption>
         </figure>
         <figure>
           <img src="https://cdn.jsdelivr.net/gh/toydream525/yuri1st@main/docs/screenshots/03-batch-pointgrid.jpg" alt="批量点格子">

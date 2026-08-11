@@ -67,5 +67,6 @@ fun mergeCatalogPage(
         bangumiCollectionType = existing.bangumiCollectionType,
         bangumiCollectionSyncedAt = existing.bangumiCollectionSyncedAt,
         winLose = existing.winLose,
+        manualYuriCategory = existing.manualYuriCategory,
     )
 }

@@ -29,6 +29,7 @@ import com.yurishelf.app.domain.SubjectKey
 import com.yurishelf.app.domain.ThemeMode
 import com.yurishelf.app.domain.WinLose
 import com.yurishelf.app.domain.filterAndSortSubjects
+import com.yurishelf.app.domain.hasAdvancedConditions
 import com.yurishelf.app.domain.matchesAnyBlockWord
 import com.yurishelf.app.domain.paginateSubjects
 import com.yurishelf.app.domain.pickRandomSubjects
@@ -402,6 +403,7 @@ class CatalogViewModel(
                         formatName = state.filters.format?.name,
                         aiCategoryName = state.filters.aiCategory?.name,
                         winLoseName = state.filters.winLose?.name,
+                        invertAdvanced = state.filters.invertAdvanced,
                         page = state.currentPage,
                         viewModeName = state.viewMode.name,
                         detailKey = state.selectedSubjectKey?.cacheKey,
@@ -445,6 +447,7 @@ class CatalogViewModel(
             winLose = snapshot.winLoseName?.let { name ->
                 runCatching { WinLose.valueOf(name) }.getOrNull()
             },
+            invertAdvanced = snapshot.invertAdvanced,
         )
         requestedPage.value = snapshot.page.coerceAtLeast(1)
         viewMode.value = restoredViewMode
@@ -503,12 +506,12 @@ class CatalogViewModel(
 
     fun setMinimumVotes(minimumVotes: Int) {
         requestedPage.value = 1
-        filters.update { it.copy(minimumVotes = minimumVotes) }
+        filters.update { it.copy(minimumVotes = minimumVotes).clearInvalidAdvancedInversion() }
     }
 
     fun setYear(year: Int?) {
         requestedPage.value = 1
-        filters.update { it.copy(year = year) }
+        filters.update { it.copy(year = year).clearInvalidAdvancedInversion() }
     }
 
     fun toggleNsfwOnly() {
@@ -539,10 +542,10 @@ class CatalogViewModel(
     }
 
     fun toggleViewMode() {
-        viewMode.value = if (viewMode.value == CatalogViewMode.LIST) {
-            CatalogViewMode.GRID
-        } else {
-            CatalogViewMode.LIST
+        viewMode.value = when (viewMode.value) {
+            CatalogViewMode.LIST -> CatalogViewMode.GRID
+            CatalogViewMode.GRID -> CatalogViewMode.DENSE_GRID
+            CatalogViewMode.DENSE_GRID -> CatalogViewMode.LIST
         }
     }
 
@@ -553,18 +556,27 @@ class CatalogViewModel(
 
     fun setAiCategory(category: AiYuriCategory?) {
         requestedPage.value = 1
-        filters.update { it.copy(aiCategory = category, winLose = null) }
+        filters.update { it.copy(aiCategory = category, winLose = null).clearInvalidAdvancedInversion() }
     }
 
     fun setWinLoseFilter(winLose: WinLose?) {
         requestedPage.value = 1
-        filters.update { it.copy(winLose = winLose, aiCategory = null) }
+        filters.update { it.copy(winLose = winLose, aiCategory = null).clearInvalidAdvancedInversion() }
     }
 
     fun setFormat(format: SubjectFormat?) {
         requestedPage.value = 1
-        filters.update { it.copy(format = format) }
+        filters.update { it.copy(format = format).clearInvalidAdvancedInversion() }
     }
+
+    fun toggleAdvancedInversion() {
+        if (!filters.value.hasAdvancedConditions()) return
+        requestedPage.value = 1
+        filters.update { it.copy(invertAdvanced = !it.invertAdvanced) }
+    }
+
+    private fun CatalogFilters.clearInvalidAdvancedInversion(): CatalogFilters =
+        if (hasAdvancedConditions()) this else copy(invertAdvanced = false)
 
     fun selectPage(page: Int) {
         requestedPage.value = page.coerceAtLeast(1)
@@ -813,6 +825,12 @@ class CatalogViewModel(
         }
     }
 
+    fun setAiCategoryOverride(subject: Subject, category: AiYuriCategory?) {
+        viewModelScope.launch {
+            repository.setAiCategoryOverride(subject.key, category)
+        }
+    }
+
     fun analyzeSubject(subject: Subject) {
         if (analyzingSubjectKey.value != null) return
         detailMessage.value = null
@@ -1049,7 +1067,7 @@ class CatalogViewModel(
     private fun Throwable.toUserMessage(): String = when (this) {
         is MissingUserAgentException -> "尚未配置 Bangumi User-Agent，请按 README 设置后重新构建"
         is MissingAccessTokenException -> message ?: "NSFW 模式需要有效的 Bangumi Access Token"
-        is MissingAiApiKeyException -> "尚未配置 AI API Key，请在“设置 → AI 雷点分析”中配置"
+        is MissingAiApiKeyException -> "尚未配置 AI API Key，请在“设置 → AI 百合倾向分析”中配置"
         is AiRequestException -> when (statusCode) {
             400 -> "AI 请求被拒绝，请检查接口地址、模型名或提示词"
             401, 403 -> "AI API Key 无效或没有权限"

@@ -20,6 +20,7 @@ data class UiSnapshot(
     val formatName: String? = null,
     val aiCategoryName: String? = null,
     val winLoseName: String? = null,
+    val invertAdvanced: Boolean = false,
     val page: Int = 1,
     val viewModeName: String? = null,
     val detailKey: String? = null,

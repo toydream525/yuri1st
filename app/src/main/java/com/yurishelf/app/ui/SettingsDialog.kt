@@ -190,7 +190,7 @@ fun SettingsDialog(
 
                 SectionLabel("高级功能")
                 SettingsActionRow(
-                    title = "AI 雷点分析",
+                    title = "AI 百合倾向分析",
                     subtitle = if (aiSettings.hasApiKey) {
                         "已配置 ${aiSettings.model}（提示词可编辑）"
                     } else {

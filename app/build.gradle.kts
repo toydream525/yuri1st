@@ -8,6 +8,14 @@ plugins {
 
 val configuredBangumiUserAgent = providers.gradleProperty("BANGUMI_USER_AGENT")
     .orElse(providers.environmentVariable("BANGUMI_USER_AGENT"))
+val releaseStoreFile = providers.gradleProperty("RELEASE_STORE_FILE")
+    .orElse(providers.environmentVariable("RELEASE_STORE_FILE"))
+val releaseStorePassword = providers.gradleProperty("RELEASE_STORE_PASSWORD")
+    .orElse(providers.environmentVariable("RELEASE_STORE_PASSWORD"))
+val releaseKeyAlias = providers.gradleProperty("RELEASE_KEY_ALIAS")
+    .orElse(providers.environmentVariable("RELEASE_KEY_ALIAS"))
+val releaseKeyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD")
+    .orElse(providers.environmentVariable("RELEASE_KEY_PASSWORD"))
 
 fun buildConfigString(value: String): String = "\"" +
     value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
@@ -20,16 +28,25 @@ android {
         applicationId = "com.yurishelf.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.3.0"
+        versionCode = 3
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = releaseStoreFile.orNull?.let(::file)
+            storePassword = releaseStorePassword.orNull
+            keyAlias = releaseKeyAlias.orNull
+            keyPassword = releaseKeyPassword.orNull
+        }
     }
 
     buildTypes {
         debug {
             val userAgent = configuredBangumiUserAgent.orElse(
-                "Yuri1stDev/yuri1st/0.3.0 (Android; local prototype)",
+                "Yuri1stDev/yuri1st/0.4.0 (Android; local prototype)",
             ).get()
             buildConfigField("String", "BANGUMI_USER_AGENT", buildConfigString(userAgent))
         }
@@ -37,6 +54,7 @@ android {
             val userAgent = configuredBangumiUserAgent.orElse("").get()
             buildConfigField("String", "BANGUMI_USER_AGENT", buildConfigString(userAgent))
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -72,6 +90,18 @@ tasks.configureEach {
         doFirst {
             check(configuredBangumiUserAgent.orNull?.isNotBlank() == true) {
                 "Release builds require -PBANGUMI_USER_AGENT='yuri1st/version (developer-id; project-url)'"
+            }
+            val requiredSigningProperties = listOf(
+                "RELEASE_STORE_FILE" to releaseStoreFile.orNull,
+                "RELEASE_STORE_PASSWORD" to releaseStorePassword.orNull,
+                "RELEASE_KEY_ALIAS" to releaseKeyAlias.orNull,
+                "RELEASE_KEY_PASSWORD" to releaseKeyPassword.orNull,
+            )
+            val missing = requiredSigningProperties
+                .filter { (_, value) -> value.isNullOrBlank() }
+                .joinToString(", ") { (name, _) -> name }
+            check(missing.isEmpty()) {
+                "Release builds require signing configuration via project properties or environment variables: $missing"
             }
         }
     }

@@ -1,0 +1,392 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 7,
+    "identityHash": "67d3eda8656b95b7c44062ce4a8cf2fb",
+    "entities": [
+      {
+        "tableName": "subjects",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `type` INTEGER NOT NULL, `catalogType` TEXT NOT NULL, `name` TEXT NOT NULL, `nameCn` TEXT NOT NULL, `summary` TEXT NOT NULL, `date` TEXT NOT NULL, `platform` TEXT NOT NULL, `imageUrl` TEXT NOT NULL, `ratingScore` REAL NOT NULL, `ratingTotal` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `rating1` INTEGER NOT NULL, `rating2` INTEGER NOT NULL, `rating3` INTEGER NOT NULL, `rating4` INTEGER NOT NULL, `rating5` INTEGER NOT NULL, `rating6` INTEGER NOT NULL, `rating7` INTEGER NOT NULL, `rating8` INTEGER NOT NULL, `rating9` INTEGER NOT NULL, `rating10` INTEGER NOT NULL, `wish` INTEGER NOT NULL, `collect` INTEGER NOT NULL, `doing` INTEGER NOT NULL, `onHold` INTEGER NOT NULL, `dropped` INTEGER NOT NULL, `tagsJson` TEXT NOT NULL, `metaTagsJson` TEXT NOT NULL, `infoboxText` TEXT NOT NULL, `episodeCount` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL, `nsfw` INTEGER NOT NULL, `syncedAt` INTEGER NOT NULL, `detailSyncedAt` INTEGER NOT NULL, `isCatalogMember` INTEGER NOT NULL DEFAULT 1, `catalogGeneration` INTEGER NOT NULL DEFAULT 0, `isBlocked` INTEGER NOT NULL DEFAULT 0, `bangumiCollectionType` INTEGER DEFAULT NULL, `bangumiCollectionSyncedAt` INTEGER NOT NULL DEFAULT 0, `winLose` TEXT DEFAULT NULL, `manualYuriCategory` TEXT DEFAULT NULL, PRIMARY KEY(`id`, `catalogType`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogType",
+            "columnName": "catalogType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameCn",
+            "columnName": "nameCn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "summary",
+            "columnName": "summary",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "platform",
+            "columnName": "platform",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ratingScore",
+            "columnName": "ratingScore",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ratingTotal",
+            "columnName": "ratingTotal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rank",
+            "columnName": "rank",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating1",
+            "columnName": "rating1",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating2",
+            "columnName": "rating2",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating3",
+            "columnName": "rating3",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating4",
+            "columnName": "rating4",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating5",
+            "columnName": "rating5",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating6",
+            "columnName": "rating6",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating7",
+            "columnName": "rating7",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating8",
+            "columnName": "rating8",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating9",
+            "columnName": "rating9",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating10",
+            "columnName": "rating10",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wish",
+            "columnName": "wish",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "collect",
+            "columnName": "collect",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doing",
+            "columnName": "doing",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "onHold",
+            "columnName": "onHold",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dropped",
+            "columnName": "dropped",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagsJson",
+            "columnName": "tagsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metaTagsJson",
+            "columnName": "metaTagsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "infoboxText",
+            "columnName": "infoboxText",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "episodeCount",
+            "columnName": "episodeCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isFavorite",
+            "columnName": "isFavorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nsfw",
+            "columnName": "nsfw",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncedAt",
+            "columnName": "syncedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailSyncedAt",
+            "columnName": "detailSyncedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCatalogMember",
+            "columnName": "isCatalogMember",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "catalogGeneration",
+            "columnName": "catalogGeneration",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "isBlocked",
+            "columnName": "isBlocked",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "bangumiCollectionType",
+            "columnName": "bangumiCollectionType",
+            "affinity": "INTEGER",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "bangumiCollectionSyncedAt",
+            "columnName": "bangumiCollectionSyncedAt",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "winLose",
+            "columnName": "winLose",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "manualYuriCategory",
+            "columnName": "manualYuriCategory",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id",
+            "catalogType"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_subjects_catalogType",
+            "unique": false,
+            "columnNames": [
+              "catalogType"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_subjects_catalogType` ON `${TABLE_NAME}` (`catalogType`)"
+          },
+          {
+            "name": "index_subjects_ratingScore",
+            "unique": false,
+            "columnNames": [
+              "ratingScore"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_subjects_ratingScore` ON `${TABLE_NAME}` (`ratingScore`)"
+          },
+          {
+            "name": "index_subjects_ratingTotal",
+            "unique": false,
+            "columnNames": [
+              "ratingTotal"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_subjects_ratingTotal` ON `${TABLE_NAME}` (`ratingTotal`)"
+          }
+        ]
+      },
+      {
+        "tableName": "ai_analyses",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectId` INTEGER NOT NULL, `catalogType` TEXT NOT NULL, `category` TEXT NOT NULL, `confidence` REAL NOT NULL, `reason` TEXT NOT NULL, `riskPointsJson` TEXT NOT NULL, `sourcesJson` TEXT NOT NULL, `analyzedAt` INTEGER NOT NULL, PRIMARY KEY(`subjectId`, `catalogType`))",
+        "fields": [
+          {
+            "fieldPath": "subjectId",
+            "columnName": "subjectId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogType",
+            "columnName": "catalogType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "confidence",
+            "columnName": "confidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "riskPointsJson",
+            "columnName": "riskPointsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcesJson",
+            "columnName": "sourcesJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "analyzedAt",
+            "columnName": "analyzedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "subjectId",
+            "catalogType"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ai_analyses_catalogType",
+            "unique": false,
+            "columnNames": [
+              "catalogType"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ai_analyses_catalogType` ON `${TABLE_NAME}` (`catalogType`)"
+          },
+          {
+            "name": "index_ai_analyses_analyzedAt",
+            "unique": false,
+            "columnNames": [
+              "analyzedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ai_analyses_analyzedAt` ON `${TABLE_NAME}` (`analyzedAt`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '67d3eda8656b95b7c44062ce4a8cf2fb')"
+    ]
+  }
+}

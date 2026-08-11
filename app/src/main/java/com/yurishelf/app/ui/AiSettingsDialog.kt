@@ -49,14 +49,14 @@ fun AiSettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("AI 雷点分析") },
+        title = { Text("AI 百合倾向分析") },
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(
-                    "使用标准 OpenAI 兼容接口判断百合程度和雷点。结果由 AI 生成，仅供参考，不构成对作品的评价。",
+                    "使用标准 OpenAI 兼容接口判断百合程度；仅非百结果会在首页标记雷点。结果由 AI 生成，仅供参考。",
                     style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                 )
                 OutlinedTextField(
@@ -121,16 +121,16 @@ fun AiSettingsDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 2.dp),
-                    minLines = 8,
+                    minLines = 7,
                     maxLines = 12,
-                    label = { Text("提示词") },
-                    supportingText = { Text("可以按自己的判断标准编辑；恢复默认会覆盖当前内容。") },
+                    label = { Text("判断偏好") },
+                    supportingText = { Text("用自然语言写下你希望 AI 怎样判断；技术格式会由应用自动处理。") },
                 )
                 TextButton(
                     onClick = { prompt = DEFAULT_AI_PROMPT },
                     modifier = Modifier.align(Alignment.End),
                 ) {
-                    Text("恢复默认提示词")
+                    Text("恢复默认判断偏好")
                 }
             }
         },

@@ -70,6 +70,32 @@ class AiModelsTest {
     }
 
     @Test
+    fun defaultPrompt_isReaderFacingAndDoesNotExposeJsonProtocol() {
+        assertTrue(DEFAULT_AI_PROMPT.contains("范围宜宽不宜窄"))
+        assertTrue(DEFAULT_AI_PROMPT.contains("百合结局"))
+        assertTrue(!DEFAULT_AI_PROMPT.contains("riskPoints"))
+        assertTrue(!DEFAULT_AI_PROMPT.contains("JSON"))
+    }
+
+    @Test
+    fun migrateAiPrompt_replacesLegacyDefaultAndStripsProtocolFromCustomText() {
+        assertEquals(DEFAULT_AI_PROMPT, migrateAiPrompt(LEGACY_DEFAULT_AI_PROMPT))
+
+        val migrated = migrateAiPrompt(
+            """
+            请更偏向真百。
+            只输出 JSON。
+            {"category":"真百|轻百|非百","riskPoints":[]}
+            不要把 BE 当作雷点。
+            """.trimIndent(),
+        )
+        assertTrue(migrated.contains("请更偏向真百"))
+        assertTrue(migrated.contains("不要把 BE 当作雷点"))
+        assertTrue(!migrated.contains("JSON"))
+        assertTrue(!migrated.contains("riskPoints"))
+    }
+
+    @Test
     fun collectionDtos_roundTripSerialization() {
         val request = UpdateCollectionRequest(
             type = 3,

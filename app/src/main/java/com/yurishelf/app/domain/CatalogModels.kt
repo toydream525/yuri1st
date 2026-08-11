@@ -24,6 +24,8 @@ enum class AiYuriCategory(val label: String) {
     UNKNOWN("未知"),
 }
 
+enum class AiCategorySource { AI, MANUAL, NONE }
+
 enum class BangumiCollectionType(val apiValue: Int, val label: String) {
     WISH(1, "想看"),
     COLLECT(2, "看过"),
@@ -54,6 +56,7 @@ enum class ThemeMode(val label: String) {
 enum class CatalogViewMode(val label: String) {
     LIST("列表"),
     GRID("封面"),
+    DENSE_GRID("密集封面"),
 }
 
 enum class SubjectFormat(val label: String) {
@@ -100,7 +103,12 @@ data class CatalogFilters(
     val aiCategory: AiYuriCategory? = null,
     val winLose: WinLose? = null,
     val format: SubjectFormat? = null,
+    /** Applies to advanced conditions only; basic search, visibility and blocking rules remain intact. */
+    val invertAdvanced: Boolean = false,
 )
+
+fun CatalogFilters.hasAdvancedConditions(): Boolean =
+    minimumVotes > 0 || year != null || aiCategory != null || winLose != null || format != null
 
 data class SubjectPage(
     val items: List<Subject>,
@@ -150,12 +158,19 @@ data class Subject(
     val aiAnalysis: AiAnalysis? = null,
     val bangumiCollectionType: BangumiCollectionType? = null,
     val winLose: WinLose? = null,
+    val manualYuriCategory: AiYuriCategory? = null,
 ) {
     val key: SubjectKey get() = SubjectKey(id, type)
     val displayName: String get() = nameCn.ifBlank { name }
     val secondaryName: String get() = if (nameCn.isNotBlank() && nameCn != name) name else ""
     val categoryLabel: String get() = classifySubject(type, metaTags, platform)
     val yuriCategory: YuriCategory get() = classifyYuri(tags, metaTags)
+    val effectiveAiCategory: AiYuriCategory? get() = manualYuriCategory ?: aiAnalysis?.category
+    val aiCategorySource: AiCategorySource get() = when {
+        manualYuriCategory != null -> AiCategorySource.MANUAL
+        aiAnalysis != null -> AiCategorySource.AI
+        else -> AiCategorySource.NONE
+    }
 }
 
 fun Subject.withAiAnalysis(analysis: AiAnalysis?): Subject = copy(aiAnalysis = analysis)
@@ -211,25 +226,33 @@ fun filterAndSortSubjects(
     val query = filters.query.trim()
     val activeBlockWords = blockWords.map { it.trim() }.filter { it.isNotEmpty() }
     val filtered = subjects.filter { subject ->
-        !subject.isBlocked &&
-            !matchesAnyBlockWord(subject, activeBlockWords) &&
+        val matchesBaseFilters =
+            !subject.isBlocked &&
+                !matchesAnyBlockWord(subject, activeBlockWords) &&
+                (!filters.favoritesOnly || subject.isFavorite) &&
+                (filters.includeNsfw || !subject.nsfw) &&
+                (!filters.nsfwOnly || subject.nsfw) &&
+                (query.isEmpty() || sequenceOf(
+                    subject.name,
+                    subject.nameCn,
+                    subject.platform,
+                    subject.infoboxText,
+                )
+                    .plus(subject.tags.asSequence())
+                    .plus(subject.metaTags.asSequence())
+                    .any { it.contains(query, ignoreCase = true) })
+        val matchesAdvancedFilters =
             subject.ratingTotal >= filters.minimumVotes &&
-            (filters.year == null || subject.date.take(4).toIntOrNull() == filters.year) &&
-            (!filters.favoritesOnly || subject.isFavorite) &&
-            (filters.includeNsfw || !subject.nsfw) &&
-            (!filters.nsfwOnly || subject.nsfw) &&
-            (filters.aiCategory == null || subject.aiAnalysis?.category == filters.aiCategory) &&
-            (filters.winLose == null || subject.winLose == filters.winLose) &&
-            (filters.format == null || subject.subjectFormat() == filters.format) &&
-            (query.isEmpty() || sequenceOf(
-                subject.name,
-                subject.nameCn,
-                subject.platform,
-                subject.infoboxText,
-            )
-                .plus(subject.tags.asSequence())
-                .plus(subject.metaTags.asSequence())
-                .any { it.contains(query, ignoreCase = true) })
+                (filters.year == null || subject.date.take(4).toIntOrNull() == filters.year) &&
+                (filters.aiCategory == null || subject.effectiveAiCategory == filters.aiCategory) &&
+                (filters.winLose == null || subject.winLose == filters.winLose) &&
+                (filters.format == null || subject.subjectFormat() == filters.format)
+
+        matchesBaseFilters && if (filters.invertAdvanced && filters.hasAdvancedConditions()) {
+            !matchesAdvancedFilters
+        } else {
+            matchesAdvancedFilters
+        }
     }
 
     return when (filters.sort) {

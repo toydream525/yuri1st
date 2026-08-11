@@ -50,6 +50,11 @@ interface SubjectDao {
             isBlocked = existing?.isBlocked ?: subject.isBlocked,
             isCatalogMember = existing?.isCatalogMember ?: false,
             catalogGeneration = existing?.catalogGeneration ?: 0,
+            manualYuriCategory = if (existing != null) {
+                existing.manualYuriCategory
+            } else {
+                subject.manualYuriCategory
+            },
         )
         upsertAll(listOf(merged))
     }
@@ -97,6 +102,11 @@ interface SubjectDao {
     suspend fun upsertAiAnalyses(analyses: List<AiAnalysisEntity>)
 
     @Query(
+        "SELECT * FROM ai_analyses WHERE subjectId = :subjectId AND catalogType = :catalogType LIMIT 1",
+    )
+    suspend fun getAiAnalysis(subjectId: Int, catalogType: String): AiAnalysisEntity?
+
+    @Query(
         "UPDATE subjects SET bangumiCollectionType = :collectionType, " +
             "bangumiCollectionSyncedAt = :syncedAt " +
             "WHERE id = :subjectId AND catalogType = :catalogType",
@@ -117,6 +127,11 @@ interface SubjectDao {
         catalogType: String,
         winLose: String?,
     )
+
+    @Query(
+        "UPDATE subjects SET manualYuriCategory = :category WHERE id = :subjectId AND catalogType = :catalogType",
+    )
+    suspend fun setManualYuriCategory(subjectId: Int, catalogType: String, category: String?)
 
     @Query(
         "DELETE FROM ai_analyses WHERE subjectId = :subjectId AND catalogType = :catalogType",

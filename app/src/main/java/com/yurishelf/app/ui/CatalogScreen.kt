@@ -65,6 +65,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Grid4x4
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -99,6 +100,7 @@ import com.yurishelf.app.domain.AiYuriCategory
 import com.yurishelf.app.domain.SortOption
 import com.yurishelf.app.domain.Subject
 import com.yurishelf.app.domain.SubjectFormat
+import com.yurishelf.app.domain.hasAdvancedConditions
 import com.yurishelf.app.domain.BangumiCollectionType
 import com.yurishelf.app.domain.ThemeMode
 import com.yurishelf.app.domain.WinLose
@@ -145,6 +147,7 @@ fun CatalogScreen(
     onOpenLink: (String) -> Unit,
     onSaveAiSettings: (AiSettings, String?, Boolean) -> Unit,
     onSetFormat: (SubjectFormat?) -> Unit,
+    onToggleAdvancedInversion: () -> Unit,
     onStartBatchAi: (List<Subject>) -> Unit,
     onCancelBatchAi: () -> Unit,
     onDismissBatchAi: () -> Unit,
@@ -479,14 +482,12 @@ fun CatalogScreen(
                         )
                     }
                     IconButton(onClick = onToggleViewMode) {
-                        if (state.viewMode == CatalogViewMode.LIST) {
-                            Icon(Icons.Filled.GridView, contentDescription = "切换到封面模式")
-                        } else {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ViewList,
-                                contentDescription = "切换到列表模式",
-                            )
+                        val (icon, description) = when (state.viewMode) {
+                            CatalogViewMode.LIST -> Icons.Filled.GridView to "切换到两列封面模式"
+                            CatalogViewMode.GRID -> Icons.Filled.Grid4x4 to "切换到密集封面模式"
+                            CatalogViewMode.DENSE_GRID -> Icons.AutoMirrored.Filled.ViewList to "切换到列表模式"
                         }
+                        Icon(icon, contentDescription = description)
                     }
                     IconButton(
                         onClick = { showBatchPointGrid = true },
@@ -688,6 +689,27 @@ fun CatalogScreen(
                             )
                         }
                     }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        FilterChip(
+                            selected = state.filters.invertAdvanced,
+                            onClick = onToggleAdvancedInversion,
+                            enabled = state.filters.hasAdvancedConditions(),
+                            label = { Text("反选高级筛选结果") },
+                        )
+                        if (!state.filters.hasAdvancedConditions()) {
+                            Text(
+                                text = "请先选择至少一项高级条件",
+                                modifier = Modifier.padding(start = 8.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
 
@@ -715,7 +737,7 @@ fun CatalogScreen(
                             listState.scrollToItem(0)
                         }
                         if (
-                            state.viewMode == CatalogViewMode.GRID &&
+                            state.viewMode != CatalogViewMode.LIST &&
                             gridState.firstVisibleItemIndex > 0
                         ) {
                             gridState.scrollToItem(0)
@@ -747,19 +769,21 @@ fun CatalogScreen(
                         }
                     }
                 } else {
+                    val dense = state.viewMode == CatalogViewMode.DENSE_GRID
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
+                        columns = GridCells.Fixed(if (dense) 4 else 2),
                         state = gridState,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
-                        contentPadding = PaddingValues(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(if (dense) 6.dp else 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(if (dense) 6.dp else 12.dp),
                     ) {
                         items(state.subjects, key = { "${it.type.name}:${it.id}" }) { subject ->
                             SubjectCoverCard(
                                 subject = subject,
+                                dense = dense,
                                 onClick = { onOpenSubject(subject) },
                             )
                         }
@@ -779,6 +803,7 @@ fun CatalogScreen(
 @Composable
 private fun SubjectCoverCard(
     subject: Subject,
+    dense: Boolean,
     onClick: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -813,19 +838,23 @@ private fun SubjectCoverCard(
                 }
             }
             Column(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                modifier = Modifier.padding(
+                    horizontal = if (dense) 4.dp else 8.dp,
+                    vertical = if (dense) 4.dp else 6.dp,
+                ),
             ) {
-                subject.aiAnalysis?.let { analysis ->
+                subject.effectiveAiCategory?.takeIf { !dense }?.let { category ->
                     AiCategoryBadge(
-                        category = analysis.category,
-                        riskCount = analysis.riskPoints.size,
+                        category = category,
+                        riskCount = if (category == AiYuriCategory.NON) subject.aiAnalysis?.riskPoints?.size ?: 0 else 0,
+                        source = subject.aiCategorySource,
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
                 Text(
                     text = subject.displayName,
                     style = MaterialTheme.typography.labelMedium,
-                    maxLines = 2,
+                    maxLines = if (dense) 2 else 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
@@ -837,10 +866,10 @@ private fun SubjectCoverCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                subject.bangumiCollectionType?.let { type ->
+                subject.bangumiCollectionType?.takeIf { !dense }?.let { type ->
                     BangumiCollectionBadge(type)
                 }
-                subject.winLose?.let { winLose ->
+                subject.winLose?.takeIf { !dense }?.let { winLose ->
                     Text(
                         text = winLose.label,
                         style = MaterialTheme.typography.labelSmall,
@@ -1364,7 +1393,7 @@ private fun BatchAiConfirmDialog(
         title = { Text("一键 AI 分析本页？") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("将对本页 $count 部作品逐个进行 AI 雷点分析。")
+                Text("将对本页 $count 部作品逐个进行 AI 百合倾向分析。")
                 Text(
                     "每部之间会自动限速，预计需要较长时间，并会消耗 AI 接口额度；" +
                         "已分析过的条目也会重新分析。结果仅供参考。",
@@ -1593,16 +1622,17 @@ private fun SubjectCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (subject.aiAnalysis != null || subject.bangumiCollectionType != null) {
+                if (subject.effectiveAiCategory != null || subject.bangumiCollectionType != null) {
                     Row(
                         modifier = Modifier.padding(top = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        subject.aiAnalysis?.let { analysis ->
+                        subject.effectiveAiCategory?.let { category ->
                             AiCategoryBadge(
-                                category = analysis.category,
-                                riskCount = analysis.riskPoints.size,
+                                category = category,
+                                riskCount = if (category == AiYuriCategory.NON) subject.aiAnalysis?.riskPoints?.size ?: 0 else 0,
+                                source = subject.aiCategorySource,
                             )
                         }
                         subject.bangumiCollectionType?.let { type ->

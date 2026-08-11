@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [SubjectEntity::class, AiAnalysisEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 abstract class YuriShelfDatabase : RoomDatabase() {
@@ -159,6 +159,14 @@ abstract class YuriShelfDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL(
                     "ALTER TABLE `subjects` ADD COLUMN `winLose` TEXT DEFAULT NULL",
+                )
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE `subjects` ADD COLUMN `manualYuriCategory` TEXT DEFAULT NULL",
                 )
             }
         }

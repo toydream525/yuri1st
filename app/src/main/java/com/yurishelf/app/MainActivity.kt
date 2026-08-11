@@ -91,6 +91,7 @@ class MainActivity : ComponentActivity() {
                         },
                         onSaveAiSettings = viewModel::saveAiSettings,
                         onSetFormat = viewModel::setFormat,
+                        onToggleAdvancedInversion = viewModel::toggleAdvancedInversion,
                         onStartBatchAi = viewModel::startBatchAiAnalysis,
                         onCancelBatchAi = viewModel::cancelBatchAiAnalysis,
                         onDismissBatchAi = viewModel::dismissBatchAiResult,
@@ -123,6 +124,7 @@ class MainActivity : ComponentActivity() {
                         onUpdateBangumiCollection = viewModel::updateBangumiCollection,
                         onDismissDetailMessage = viewModel::dismissDetailMessage,
                         onToggleWinLose = viewModel::toggleWinLose,
+                        onSetAiCategoryOverride = viewModel::setAiCategoryOverride,
                     )
                 }
             }

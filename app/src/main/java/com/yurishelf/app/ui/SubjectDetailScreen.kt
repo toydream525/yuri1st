@@ -72,6 +72,7 @@ fun SubjectDetailScreen(
     onUpdateBangumiCollection: (Subject, BangumiCollectionType) -> Unit,
     onDismissDetailMessage: () -> Unit,
     onToggleWinLose: (Subject, WinLose) -> Unit,
+    onSetAiCategoryOverride: (Subject, AiYuriCategory?) -> Unit,
 ) {
     var pendingBlock by remember { mutableStateOf<Subject?>(null) }
 
@@ -178,6 +179,7 @@ fun SubjectDetailScreen(
                 collectionUpdating = state.collectionUpdating,
                 analysis = state.analysis,
                 onToggleWinLose = onToggleWinLose,
+                onSetAiCategoryOverride = onSetAiCategoryOverride,
                 modifier = Modifier.padding(contentPadding),
             )
         }
@@ -197,6 +199,7 @@ private fun SubjectDetailBody(
     collectionUpdating: Boolean,
     analysis: com.yurishelf.app.domain.AiAnalysis?,
     onToggleWinLose: (Subject, WinLose) -> Unit,
+    onSetAiCategoryOverride: (Subject, AiYuriCategory?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -348,7 +351,7 @@ private fun SubjectDetailBody(
             )
         }
 
-        SectionTitle("AI 雷点分析")
+        SectionTitle("AI 百合倾向分析")
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -360,37 +363,50 @@ private fun SubjectDetailBody(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (analysis != null) {
+            if (analysis != null || subject.manualYuriCategory != null) {
+                val category = subject.effectiveAiCategory ?: AiYuriCategory.UNKNOWN
                 AiCategoryBadge(
-                    category = analysis.category,
-                    riskCount = analysis.riskPoints.size,
+                    category = category,
+                    riskCount = if (category == AiYuriCategory.NON) analysis?.riskPoints?.size ?: 0 else 0,
+                    source = subject.aiCategorySource,
                 )
-                if (analysis.category == AiYuriCategory.UNKNOWN) {
+                if (subject.manualYuriCategory != null) {
+                    Text(
+                        "当前分类已由你手动设为“${category.label}”。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (category == AiYuriCategory.UNKNOWN) {
                     Text("AI 未能可靠判断，置信度较低。")
                 }
-                Text(
-                    "置信度：${String.format(Locale.US, "%.0f%%", analysis.confidence * 100)}",
-                    style = MaterialTheme.typography.labelMedium,
-                )
-                Text(analysis.reason, style = MaterialTheme.typography.bodyMedium)
-                if (analysis.riskPoints.isNotEmpty()) {
+                analysis?.let { currentAnalysis ->
+                    Text(
+                        "置信度：${String.format(Locale.US, "%.0f%%", currentAnalysis.confidence * 100)}",
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                    Text(currentAnalysis.reason, style = MaterialTheme.typography.bodyMedium)
+                }
+                if (analysis?.riskPoints?.isNotEmpty() == true) {
                     Text("雷点：", fontWeight = FontWeight.SemiBold)
                     analysis.riskPoints.forEach { risk ->
                         Text("• $risk", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
-                if (analysis.sources.isNotEmpty()) {
+                if (analysis?.sources?.isNotEmpty() == true) {
                     Text(
                         "参考来源：${analysis.sources.joinToString("；")}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Text(
-                    "分析时间：${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(analysis.analyzedAt))}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                analysis?.let { currentAnalysis ->
+                    Text(
+                        "分析时间：${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(currentAnalysis.analyzedAt))}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             } else if (analyzing) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(
@@ -399,6 +415,23 @@ private fun SubjectDetailBody(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text("AI 正在读取条目并联网分析…")
+                }
+            }
+            Text("分类", fontWeight = FontWeight.SemiBold)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(listOf(AiYuriCategory.STRONG, AiYuriCategory.LIGHT, AiYuriCategory.NON)) { category ->
+                    FilterChip(
+                        selected = subject.manualYuriCategory == category,
+                        onClick = { onSetAiCategoryOverride(subject, category) },
+                        label = { Text(category.label) },
+                    )
+                }
+                if (subject.manualYuriCategory != null) {
+                    item {
+                        TextButton(onClick = { onSetAiCategoryOverride(subject, null) }) {
+                            Text("跟随 AI")
+                        }
+                    }
                 }
             }
             TextButton(

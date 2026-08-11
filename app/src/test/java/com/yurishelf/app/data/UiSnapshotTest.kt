@@ -45,6 +45,7 @@ class UiSnapshotTest {
         assertNull(snapshot?.aiCategoryName)
         assertNull(snapshot?.winLoseName)
         assertNull(snapshot?.detailKey)
+        assertEquals(false, snapshot?.invertAdvanced)
     }
 
     @Test
@@ -61,6 +62,7 @@ class UiSnapshotTest {
             formatName = "TV",
             aiCategoryName = "LIGHT",
             winLoseName = "WIN",
+            invertAdvanced = true,
             page = 7,
             viewModeName = "LIST",
             detailKey = "GAME:123",

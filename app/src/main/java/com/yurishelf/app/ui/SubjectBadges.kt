@@ -18,12 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yurishelf.app.domain.AiYuriCategory
+import com.yurishelf.app.domain.AiCategorySource
 import com.yurishelf.app.domain.BangumiCollectionType
 
 @Composable
 fun AiCategoryBadge(
     category: AiYuriCategory,
     riskCount: Int,
+    source: AiCategorySource = AiCategorySource.AI,
     modifier: Modifier = Modifier,
 ) {
     val (background, content) = when (category) {
@@ -44,12 +46,12 @@ fun AiCategoryBadge(
         horizontalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         Text(
-            text = "AI·${category.label}",
+            text = if (source == AiCategorySource.MANUAL) "手动·${category.label}" else "AI·${category.label}",
             color = content,
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
         )
-        if (riskCount > 0) {
+        if (category == AiYuriCategory.NON && riskCount > 0) {
             Icon(
                 Icons.Filled.WarningAmber,
                 contentDescription = "$riskCount 个雷点",

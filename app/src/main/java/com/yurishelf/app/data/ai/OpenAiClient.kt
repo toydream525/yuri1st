@@ -63,7 +63,7 @@ class OpenAiClient(
                 baseUrl = normalizedBase,
                 apiKey = apiKey,
                 model = model,
-                prompt = prompt,
+                prompt = systemPrompt(prompt),
                 userMessage = userMessage,
             )
         } else {
@@ -71,7 +71,7 @@ class OpenAiClient(
                 baseUrl = normalizedBase,
                 apiKey = apiKey,
                 model = model,
-                prompt = prompt,
+                prompt = systemPrompt(prompt),
                 userMessage = userMessage,
             )
         }
@@ -241,8 +241,18 @@ class OpenAiClient(
         if (context.infobox.isNotBlank()) appendLine("- 基本资料：${context.infobox}")
         if (context.summary.isNotBlank()) appendLine("- 简介：${context.summary.trim()}")
         appendLine()
-        appendLine("请严格按系统提示词要求的 JSON 结构输出。")
+        appendLine("请给出可靠、简洁的判断。")
     }
+
+    private fun systemPrompt(userPreferences: String): String = """
+        你负责分析百合作品。以下是用户的判断偏好，请严格遵循：
+        $userPreferences
+
+        回复必须仅包含一个 JSON 对象，不要使用 Markdown 或额外文字。
+        JSON 字段固定为：
+        {"category":"真百|轻百|非百","confidence":0到1之间的数字,"reason":"简洁中文理由","riskPoints":["明确雷点"],"sources":["公开来源"]}
+        所有字段都必须存在；没有雷点或来源时使用空数组。category 只能为真百、轻百或非百。
+    """.trimIndent()
 
     private fun isOfficialOpenAi(baseUrl: String): Boolean = runCatching {
         URI(baseUrl).host?.let { it == "api.openai.com" } == true

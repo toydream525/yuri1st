@@ -6,3 +6,9 @@ captures/
 .DS_Store
 *.iml
 
+# Local source deliveries, release outputs, and signing material.
+/original-files/
+/dist/
+*.jks
+*.keystore
+keystore.properties

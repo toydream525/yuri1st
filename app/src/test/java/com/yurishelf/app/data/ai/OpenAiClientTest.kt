@@ -2,6 +2,10 @@ package com.yurishelf.app.data.ai
 
 import com.yurishelf.app.domain.AiYuriCategory
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -63,6 +67,16 @@ class OpenAiClientTest {
         val body = recorded.body.readUtf8()
         assertTrue(body.contains("\"response_format\":{\"type\":\"json_object\"}"))
         assertTrue(body.contains("\"model\":\"test-model\""))
+        val systemPrompt = Json.parseToJsonElement(body).jsonObject["messages"]
+            ?.jsonArray
+            ?.first()
+            ?.jsonObject
+            ?.get("content")
+            ?.jsonPrimitive
+            ?.content
+            .orEmpty()
+        assertTrue(systemPrompt.contains("输出 JSON"))
+        assertTrue(systemPrompt.contains("\"riskPoints\""))
         assertEquals(AiYuriCategory.LIGHT, result.category)
         assertEquals(0.7, result.confidence, 0.001)
         assertEquals(listOf("暧昧"), result.riskPoints)

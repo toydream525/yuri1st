@@ -34,7 +34,7 @@ class YuriShelfDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate1To6_preservesRowsAndAddsNewColumns() {
+    fun migrate1To7_preservesRowsAndAddsNewColumns() {
         val name = newDbName()
         rawDb(name).use { db ->
             db.version = 1
@@ -49,6 +49,7 @@ class YuriShelfDatabaseMigrationTest {
                 YuriShelfDatabase.MIGRATION_3_4,
                 YuriShelfDatabase.MIGRATION_4_5,
                 YuriShelfDatabase.MIGRATION_5_6,
+                YuriShelfDatabase.MIGRATION_6_7,
             )
             .build()
 
@@ -82,6 +83,7 @@ class YuriShelfDatabaseMigrationTest {
             )
             val aiColumns = readTableNames(database)
             assertTrue("ai_analyses" in aiColumns)
+            assertTrue("manualYuriCategory" in columns)
         } finally {
             database.close()
         }
@@ -121,6 +123,7 @@ class YuriShelfDatabaseMigrationTest {
                 YuriShelfDatabase.MIGRATION_3_4,
                 YuriShelfDatabase.MIGRATION_4_5,
                 YuriShelfDatabase.MIGRATION_5_6,
+                YuriShelfDatabase.MIGRATION_6_7,
             )
             .build()
 
@@ -177,6 +180,7 @@ class YuriShelfDatabaseMigrationTest {
             .addMigrations(
                 YuriShelfDatabase.MIGRATION_4_5,
                 YuriShelfDatabase.MIGRATION_5_6,
+                YuriShelfDatabase.MIGRATION_6_7,
             )
             .build()
 
@@ -207,10 +211,10 @@ class YuriShelfDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate5To6_addsWinLoseColumnKeepingExistingData() {
+    fun migrate6To7_addsManualCategoryKeepingSubjectsAndAnalyses() {
         val name = newDbName()
         rawDb(name).use { db ->
-            db.version = 5
+            db.version = 6
             db.execSQL(CREATE_TABLE_V1)
             db.execSQL(
                 "ALTER TABLE `subjects` ADD COLUMN `isCatalogMember` " +
@@ -232,6 +236,7 @@ class YuriShelfDatabaseMigrationTest {
                 "ALTER TABLE `subjects` ADD COLUMN `bangumiCollectionSyncedAt` " +
                     "INTEGER NOT NULL DEFAULT 0",
             )
+            db.execSQL("ALTER TABLE `subjects` ADD COLUMN `winLose` TEXT DEFAULT NULL")
             db.execSQL(
                 "CREATE INDEX IF NOT EXISTS `index_subjects_catalogType` " +
                     "ON `subjects` (`catalogType`)",
@@ -268,10 +273,11 @@ class YuriShelfDatabaseMigrationTest {
                     "ON `ai_analyses` (`analyzedAt`)",
             )
             db.execSQL(INSERT_V5_ROW)
+            db.execSQL(INSERT_V5_AI_ANALYSIS)
         }
 
         val database = Room.databaseBuilder(context, YuriShelfDatabase::class.java, name)
-            .addMigrations(YuriShelfDatabase.MIGRATION_5_6)
+            .addMigrations(YuriShelfDatabase.MIGRATION_6_7)
             .build()
 
         try {
@@ -279,15 +285,49 @@ class YuriShelfDatabaseMigrationTest {
             assertNotNull(entity)
             assertEquals("v5作品", entity!!.name)
             assertEquals(null, entity.winLose)
+            assertEquals(null, entity.manualYuriCategory)
+            val analysis = runBlocking { database.subjectDao().getAiAnalysis(5, "anime") }
+            assertNotNull(analysis)
+            assertEquals("LIGHT", analysis!!.category)
+            assertEquals(0.7, analysis.confidence, 0.0)
+            assertEquals("原分析", analysis.reason)
+            assertEquals("[]", analysis.riskPointsJson)
+            assertEquals("[]", analysis.sourcesJson)
+            assertEquals(1700000000000L, analysis.analyzedAt)
 
             val columns = readColumnNames(database)
             assertTrue(columns.contains("winLose"))
+            assertTrue(columns.contains("manualYuriCategory"))
 
             runBlocking {
                 database.subjectDao().setWinLose(5, "anime", "WIN")
             }
             val updated = runBlocking { database.subjectDao().getByKey(5, "anime") }
             assertEquals("WIN", updated!!.winLose)
+            runBlocking { database.subjectDao().setManualYuriCategory(5, "anime", "STRONG") }
+            assertEquals(
+                "STRONG",
+                runBlocking { database.subjectDao().getByKey(5, "anime") }!!.manualYuriCategory,
+            )
+            runBlocking {
+                database.subjectDao().upsertDetailPreservingLocalState(
+                    updated.copy(name = "详情更新", manualYuriCategory = "LIGHT"),
+                )
+            }
+            assertEquals(
+                "STRONG",
+                runBlocking { database.subjectDao().getByKey(5, "anime") }!!.manualYuriCategory,
+            )
+            runBlocking { database.subjectDao().setManualYuriCategory(5, "anime", null) }
+            runBlocking {
+                database.subjectDao().upsertDetailPreservingLocalState(
+                    updated.copy(name = "再次详情更新", manualYuriCategory = "LIGHT"),
+                )
+            }
+            assertEquals(
+                null,
+                runBlocking { database.subjectDao().getByKey(5, "anime") }!!.manualYuriCategory,
+            )
         } finally {
             database.close()
         }
@@ -452,5 +492,8 @@ class YuriShelfDatabaseMigrationTest {
                 NULL, 0
             )
             """.trimIndent()
+
+        const val INSERT_V5_AI_ANALYSIS =
+            "INSERT INTO `ai_analyses` VALUES (5, 'anime', 'LIGHT', 0.7, '原分析', '[]', '[]', 1700000000000)"
     }
 }

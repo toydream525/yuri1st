@@ -9,7 +9,6 @@ import com.yurishelf.app.data.ai.MissingAiApiKeyException
 import com.yurishelf.app.data.ai.OpenAiClient
 import com.yurishelf.app.data.ai.toAiContext
 import com.yurishelf.app.data.local.SubjectDao
-import com.yurishelf.app.data.local.AiAnalysisEntity
 import com.yurishelf.app.data.remote.AccessTokenStore
 import com.yurishelf.app.data.remote.BangumiApi
 import com.yurishelf.app.data.remote.MissingAccessTokenException
@@ -20,6 +19,7 @@ import com.yurishelf.app.data.remote.SearchSubjectsRequest
 import com.yurishelf.app.data.remote.UpdateCollectionRequest
 import com.yurishelf.app.data.remote.authorizationForMode
 import com.yurishelf.app.domain.AiAnalysis
+import com.yurishelf.app.domain.AiYuriCategory
 import com.yurishelf.app.domain.BangumiCollectionType
 import com.yurishelf.app.domain.CatalogType
 import com.yurishelf.app.domain.Subject
@@ -387,6 +387,10 @@ class CatalogRepository(
         val entity = result.toEntity(subject.id, subject.type, now)
         dao.upsertAiAnalyses(listOf(entity))
         return entity.toDomain()
+    }
+
+    suspend fun setAiCategoryOverride(key: SubjectKey, category: AiYuriCategory?) {
+        dao.setManualYuriCategory(key.id, key.catalogType.name, category?.name)
     }
 
     suspend fun updateBangumiCollection(key: SubjectKey, type: BangumiCollectionType) {

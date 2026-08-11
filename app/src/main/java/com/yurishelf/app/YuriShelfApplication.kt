@@ -50,6 +50,7 @@ class AppContainer(context: Context) {
             YuriShelfDatabase.MIGRATION_3_4,
             YuriShelfDatabase.MIGRATION_4_5,
             YuriShelfDatabase.MIGRATION_5_6,
+            YuriShelfDatabase.MIGRATION_6_7,
         )
         .build()
 

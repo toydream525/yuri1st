@@ -169,6 +169,31 @@ class CatalogRulesTest {
     }
 
     @Test
+    fun aiCategoryFilterUsesManualOverrideWhenPresent() {
+        val overridden = subject(id = 10, score = 8.0, votes = 100).copy(
+            aiAnalysis = AiAnalysis(
+                subjectId = 10,
+                catalogType = CatalogType.ANIME,
+                category = AiYuriCategory.LIGHT,
+                confidence = 0.8,
+                reason = "",
+                riskPoints = emptyList(),
+                sources = emptyList(),
+                analyzedAt = 0,
+            ),
+            manualYuriCategory = AiYuriCategory.STRONG,
+        )
+
+        assertEquals(
+            listOf(10),
+            filterAndSortSubjects(
+                listOf(overridden),
+                CatalogFilters(aiCategory = AiYuriCategory.STRONG),
+            ).map { it.id },
+        )
+    }
+
+    @Test
     fun winLoseFilterSelectsOnlyCustomLabels() {
         val win = subject(id = 11, score = 8.0, votes = 100).copy(winLose = WinLose.WIN)
         val lose = subject(id = 12, score = 8.0, votes = 100).copy(winLose = WinLose.LOSE)
@@ -258,6 +283,74 @@ class CatalogRulesTest {
         )
         assertEquals(listOf(1), result.map { it.id })
     }
+
+    @Test
+    fun advancedInversionReturnsTheComplementOfAllAdvancedConditions() {
+        val matching = subject(id = 1, score = 8.0, votes = 100).copy(
+            date = "2025-01-01",
+            aiAnalysis = analysisFor(1, AiYuriCategory.STRONG),
+        )
+        val wrongCategory = subject(id = 2, score = 8.0, votes = 100).copy(
+            date = "2025-01-01",
+            aiAnalysis = analysisFor(2, AiYuriCategory.LIGHT),
+        )
+        val tooFewVotes = subject(id = 3, score = 8.0, votes = 10).copy(
+            date = "2025-01-01",
+            aiAnalysis = analysisFor(3, AiYuriCategory.STRONG),
+        )
+        val wrongYear = subject(id = 4, score = 8.0, votes = 100).copy(
+            date = "2024-01-01",
+            aiAnalysis = analysisFor(4, AiYuriCategory.STRONG),
+        )
+        val filters = CatalogFilters(
+            minimumVotes = 50,
+            year = 2025,
+            aiCategory = AiYuriCategory.STRONG,
+            format = SubjectFormat.TV,
+            invertAdvanced = true,
+        )
+
+        assertEquals(
+            listOf(2, 4, 3),
+            filterAndSortSubjects(listOf(matching, wrongCategory, tooFewVotes, wrongYear), filters)
+                .map { it.id },
+        )
+    }
+
+    @Test
+    fun advancedInversionDoesNotReverseBasicSearchVisibilityOrBlockingRules() {
+        val matching = subject(id = 1, score = 8.0, votes = 100).copy(name = "目标")
+        val queryMismatch = subject(id = 2, score = 8.0, votes = 10).copy(name = "其他")
+        val hiddenNsfw = subject(id = 3, score = 8.0, votes = 10).copy(name = "目标", nsfw = true)
+        val blocked = subject(id = 4, score = 8.0, votes = 10).copy(name = "目标", isBlocked = true)
+
+        assertTrue(
+            filterAndSortSubjects(
+                listOf(matching, queryMismatch, hiddenNsfw, blocked),
+                CatalogFilters(query = "目标", minimumVotes = 50, invertAdvanced = true),
+            ).isEmpty(),
+        )
+    }
+
+    @Test
+    fun inversionWithoutAdvancedConditionsHasNoEffect() {
+        val entry = subject(id = 1, score = 8.0, votes = 100)
+        assertEquals(
+            listOf(1),
+            filterAndSortSubjects(listOf(entry), CatalogFilters(invertAdvanced = true)).map { it.id },
+        )
+    }
+
+    private fun analysisFor(id: Int, category: AiYuriCategory) = AiAnalysis(
+        subjectId = id,
+        catalogType = CatalogType.ANIME,
+        category = category,
+        confidence = 0.8,
+        reason = "",
+        riskPoints = emptyList(),
+        sources = emptyList(),
+        analyzedAt = 0,
+    )
 
     private fun subject(id: Int, score: Double, votes: Int) = Subject(
         id = id,

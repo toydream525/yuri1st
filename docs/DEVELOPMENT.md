@@ -16,7 +16,7 @@
 ```bash
 ./gradlew test
 ./gradlew assembleDebug
-BANGUMI_USER_AGENT='yuri1st/0.3.0 (开发者标识; https://github.com/toydream525/yuri1st)' \
+BANGUMI_USER_AGENT='yuri1st/0.4.0 (开发者标识; https://github.com/toydream525/yuri1st)' \
   ./gradlew assembleRelease
 ```
 
@@ -54,15 +54,15 @@ Bangumi 将条目搜索标为实验性 API。网络层、DTO 和仓库层已分�
 
 切换后自动刷新连接；应用不关闭 HTTPS 证书或主机名校验，也不保存代理用户名/密码。
 
-## AI 雷点分析配置
+## AI 百合倾向分析配置
 
-“设置 → 高级功能 → AI 雷点分析”：
+“设置 → 高级功能 → AI 百合倾向分析”：
 
 - 接口地址：默认 `https://api.openai.com/v1`，兼容 DeepSeek、Moonshot、自建服务等
 - API Key：Android Keystore 加密保存，不写日志或备份
 - 模型名称：默认 `gpt-4o-mini`
 - 联网搜索：仅 OpenAI 官方端点启用 `web_search` 工具
-- 提示词：可自由编辑或恢复默认；要求模型只输出 JSON，并包含真百 / 轻百 / 非百判定规则、雷点列举规则和低置信度约束
+- 判断偏好：可用自然语言编辑或恢复默认；应用会在后台处理模型输出格式。旧版保存的 JSON 协议提示会在首次打开后迁移为可读文本。
 
 ## 已知边界
 

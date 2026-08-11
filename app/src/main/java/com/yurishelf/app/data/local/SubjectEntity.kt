@@ -51,4 +51,5 @@ data class SubjectEntity(
     @ColumnInfo(defaultValue = "NULL") val bangumiCollectionType: Int? = null,
     @ColumnInfo(defaultValue = "0") val bangumiCollectionSyncedAt: Long = 0L,
     @ColumnInfo(defaultValue = "NULL") val winLose: String? = null,
+    @ColumnInfo(defaultValue = "NULL") val manualYuriCategory: String? = null,
 )

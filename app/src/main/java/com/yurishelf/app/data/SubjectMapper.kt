@@ -102,6 +102,7 @@ fun SubjectDto.toEntity(
         bangumiCollectionType = existing?.bangumiCollectionType,
         bangumiCollectionSyncedAt = existing?.bangumiCollectionSyncedAt ?: 0,
         winLose = existing?.winLose,
+        manualYuriCategory = existing?.manualYuriCategory,
     )
 }
 
@@ -143,6 +144,9 @@ fun SubjectEntity.toDomain(): Subject = Subject(
     isBlocked = isBlocked,
     bangumiCollectionType = BangumiCollectionType.fromApiValue(bangumiCollectionType),
     winLose = winLose?.let { runCatching { WinLose.valueOf(it) }.getOrNull() },
+    manualYuriCategory = manualYuriCategory?.let {
+        runCatching { com.yurishelf.app.domain.AiYuriCategory.valueOf(it) }.getOrNull()
+    },
 )
 
 private fun decodeStrings(value: String): List<String> = runCatching {
